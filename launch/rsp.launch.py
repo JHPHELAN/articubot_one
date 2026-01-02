@@ -21,7 +21,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     # Robot specific files reside under "robots" directory - sim, dragger, plucky, create1...
-    robot_model = LaunchConfiguration('robot_model', default='')
+    robot_model = LaunchConfiguration('robot_model', default='stingray')
 
     # define the launch argument that must be passed from the calling launch file or from the console:
     robot_model_arg= DeclareLaunchArgument('robot_model', default_value='')
@@ -43,7 +43,8 @@ def generate_launch_description():
         output='screen',
         namespace='/',
         parameters=[{'robot_description': ParameterValue(robot_description_sdf, value_type=str),
-                    #'publish_frequency' : 5.0,  # Defaults to 20.0 Hz. Only affects non-static joints.
+                    'use_sim_time': use_sim_time,  # ADD THIS LINE
+                    'publish_frequency' : 5.0,  # Defaults to 20.0 Hz. Only affects non-static joints.
                     #'frame_prefix': '',
                     #'ignore_timestamp': 'false'
                     }]
@@ -86,6 +87,6 @@ def generate_launch_description():
 
         # Either of these two will override /joint_states topic with zeroes.
         # Normally, joint_state_broadcaster publishes it.
-        #node_joint_state_publisher,
+        # node_joint_state_publisher,
         #node_joint_state_publisher_gui
     ])

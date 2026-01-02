@@ -25,15 +25,17 @@ def generate_launch_description():
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 
+    nav2_params_file = os.path.join(robot_path,'config','nav2_params.yaml')
+
     rsp = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(package_path,'launch','rsp.launch.py')]
                 ), launch_arguments={'use_sim_time': use_sim_time, 'robot_model' : robot_model}.items()
     )
 
-    # joystick = IncludeLaunchDescription(
-    #             PythonLaunchDescriptionSource([os.path.join(package_path,'launch','joystick.launch.py')]
-    #             ), launch_arguments={'use_sim_time': use_sim_time}.items()
-    # )
+    joystick = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([os.path.join(package_path,'launch','joystick.launch.py')]
+                ), launch_arguments={'use_sim_time': use_sim_time}.items()
+    )
 
     twist_mux = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(package_path,'launch','twist_mux.launch.py')]
@@ -46,17 +48,34 @@ def generate_launch_description():
     )
 
     cartographer = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([os.path.join(robot_path,'launch','cartographer.launch.py')]
+                PythonLaunchDescriptionSource([os.path.join(robot_path,'launch','stingray_cartographer.launch.py')]
                 ), launch_arguments={'use_sim_time': use_sim_time}.items()
     )
 
-    #map_yaml_file = os.path.join(package_path,'assets','maps','empty_map.yaml')   # this is default anyway
-    map_yaml_file = '/opt/ros/jazzy/share/nav2_bringup/maps/warehouse.yaml'
+    map_yaml_file = os.path.join(package_path,'assets','maps','large_map.yaml')   # this is default anyway
+    #map_yaml_file = '/opt/ros/jazzy/share/nav2_bringup/maps/warehouse.yaml'
 
     map_server = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(package_path,'launch','map_server.launch.py')]
-                ), launch_arguments={'use_sim_time': use_sim_time}.items()       # empty_map - default
-                #), launch_arguments={'map': map_yaml_file, 'use_sim_time': use_sim_time}.items() # warehouse
+                # ), launch_arguments={'use_sim_time': use_sim_time}.items()       # empty_map - default
+                ), launch_arguments={'map': map_yaml_file, 'use_sim_time': use_sim_time}.items() # warehouse
+    )
+
+  # Add this after the map_server definition:
+    # amcl_node = Node(
+    #     package='nav2_amcl',
+    #     executable='amcl',
+    #     name='amcl',
+    #     output='screen',
+    #     parameters=[nav2_params_file],
+    #     arguments=['--ros-args', '--log-level', 'info']
+    # )
+
+    # AMCL localization (includes both map_server and amcl nodes)
+    amcl_localization = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([os.path.join(robot_path,'launch','stingray_localization.launch.py')]
+        # ), launch_arguments={'use_sim_time': use_sim_time}.items() # empty_map - default
+        ), launch_arguments={'map': map_yaml_file, 'use_sim_time': use_sim_time}.items() # open_area_map
     )
 
     # odom_localizer is needed for slam_toolbox, providing "a valid transform from your configured odom_frame to base_frame"
@@ -68,150 +87,115 @@ def generate_launch_description():
                 ), launch_arguments={'use_sim_time': use_sim_time, 'robot_model' : robot_model}.items()
     )
 
-    # alternative to odom_localizer for slam_toolbox
-    tf_localizer = Node(package = "tf2_ros", 
-                    executable = "static_transform_publisher",
-                    arguments = ["0", "0", "0", "0", "0", "0", "odom", "base_link"]
-    )
-    
-    nav2_params_file = os.path.join(robot_path,'config','nav2_params.yaml')
 
     # You need to press "Startup" button in RViz when autostart=false
     nav2 = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([os.path.join(package_path,'launch','navigation_launch.py')]
-                ), launch_arguments={'use_sim_time': use_sim_time,
-                                     #'use_composition': 'True',
-                                     'odom_topic': 'diff_cont/odom',
-                                     #'use_respawn': 'true',
-                                     'autostart' : 'true',
-                                     'params_file' : nav2_params_file }.items()
+        PythonLaunchDescriptionSource([os.path.join(package_path,'launch','navigation.launch.py')]
+        ), launch_arguments={'use_sim_time': use_sim_time,
+            #'use_composition': 'True',
+            'odom_topic': 'diff_cont/odom',
+            #'use_respawn': 'true',
+            'autostart' : 'true',
+            'params_file' : nav2_params_file }.items()
     )
 
-    controllers_params_file = os.path.join(robot_path,'config','controllers.yaml')
-
-    controller_manager = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        parameters=[controllers_params_file],
-        remappings=[('/tf','/diff_cont/tf')]   # to eliminate publishing link to /tf, although "enable_odom_tf: false" anyway
+    roboclaw = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory("roboclaw_driver"), 
+                "launch", "roboclaw_driver.launch.py"
+            )
+        ),
+        launch_arguments={
+            "params_file": os.path.join(
+                get_package_share_directory("roboclaw_driver"),
+                "config",
+                "motor_driver.yaml"
+            )
+        }.items(),
     )
 
-    delayed_controller_manager = TimerAction(period=5.0, actions=[controller_manager])
-
-    joint_broad_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["joint_broad"],
+    joint_state_publisher_node = Node(
+        package="joint_state_publisher",
+        executable="joint_state_publisher",
+        name="joint_state_publisher"
     )
 
-    diff_drive_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["diff_cont"]
-    )
-
-    delayed_joint_broad_spawner = RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=controller_manager,
-            on_start=[joint_broad_spawner],
-        )
-    )
-
-    delayed_diff_drive_spawner = RegisterEventHandler(
-        event_handler=OnProcessStart(
-            target_action=joint_broad_spawner,
-            on_start=[diff_drive_spawner],
-        )
-    )
-
-    ldlidar_node = Node(
-        package='ldlidar_sl_ros2',
-        executable='ldlidar_sl_ros2_node',
-        name='ldlidar_publisher_ld14',
+    ydlidar_node = Node(
+        package='ydlidar_ros2_driver',
+        executable='ydlidar_ros2_driver_node',
+        name='ydlidar_ros2_driver',
         output='screen',
-        respawn=True,
+        respawn=False,
         respawn_delay=10,
-        parameters=[
-          {'product_name': 'LDLiDAR_LD14'},
-          {'laser_scan_topic_name': 'scan'},
-          {'point_cloud_2d_topic_name': 'pointcloud2d'},
-          {'frame_id': 'laser_frame'},
-          {'port_name': '/dev/ttyUSBLDR'},
-          {'serial_baudrate' : 115200},
-          {'laser_scan_dir': True},
-          {'enable_angle_crop_func': False},
-          {'angle_crop_min': 135.0},
-          {'angle_crop_max': 225.0}
-        ]
+        parameters=['/home/ubuntu/ros_ws/src/ydlidar_ros2_driver/params/ydlidar.yaml'
+        ],
+	arguments=['--ros-args', '--log-level', 'info']
+
+#          {'product_name': 'YDLIDAR X2L'},
+#          {'laser_scan_topic_name': 'scan'},
+#          {'point_cloud_2d_topic_name': 'pointcloud2d'},
+#          {'frame_id': 'laser_frame'},
+#          {'port_name': '/dev/ttyUSBLDR'},
+#          {'serial_baudrate' : 115200},
+#          {'laser_scan_dir': True},
+#          {'enable_angle_crop_func': False},
+#          {'angle_crop_min': 135.0},
+#          {'angle_crop_max': 225.0}
     )
 
-    mpu9250driver_node = Node(
-        package="mpu9250",
-        executable="mpu9250",
-        name="mpu9250",
+    bno055_driver_node = Node(
+        package='bno055',
+        # namespace='',
+        executable='bno055',
+        name='bno055',
         output='screen',
         respawn=True,
         respawn_delay=4,
-        emulate_tty=True,
-        parameters=[
-          {
-              #"print" : True,
-              "frequency" : 30,
-              "i2c_address" : 0x68,
-              "i2c_port" : 1,
-              "frame_id" : "imu_link",
-              "acceleration_scale": [1.0072387165748442, 1.0081436035838134, 0.9932769089604535],
-              "acceleration_bias": [0.17038044467587418, 0.20464685207217453, -0.12461014438322202],
-              "gyro_bias": [0.0069376404996494, -0.0619247665634732, 0.05717760948453845],
-              "magnetometer_scale": [1.0, 1.0, 1.0],
-              #"magnetometer_bias": [1.3345253592582676, 2.6689567513691685, -2.5294210260199957],
-              #"magnetometer_bias": [1.335, 4.0, 1.0],
-              #"magnetometer_bias": [1.335, 3.8, -2.5294210260199957],
-              "magnetometer_bias": [1.335, 4.0, -2.53],
-              "magnetometer_transform": [1.0246518952703103, -0.0240401565528902, 0.0030740476998857395,
-                                        -0.024040156552890175, 0.9926708357001245, 0.002288563295390304,
-                                         0.0030740476998857356, 0.0022885632953903268, 0.9837206150979054]
-          }
-        ],
+        parameters=[{
+            #   https://github.com/flynneva/bno055
+            #   https://github.com/slgrobotics/robots_bringup/blob/main/Docs/Sensors/BNO055%20IMU.md
+            'ros_topic_prefix': 'bno055',
+            'connection_type': 'i2c',
+            'i2c_bus': 1,
+            'i2c_addr': 0x28,   # Adafruit - 0x28, GY Clone - 0x29 (with both jumpers closed)
+            'data_query_frequency': 20,
+            'calib_status_frequency': 0.1,
+            'frame_id': 'imu_link',
+            'operation_mode': 0x0C, # 0x0C = FMC_ON, 0x0B - FMC_OFF, 0x05 - ACCGYRO, 0x06 - MAGGYRO
+            'placement_axis_remap': 'P1', # P1 - default, ENU
+            'acc_factor': 100.0,
+            'mag_factor': 16000000.0,
+            'gyr_factor': 900.0,
+            'grav_factor': 100.0,
+            'set_offsets': False, # set to true to use offsets below
+            'offset_acc': [0xFFEC, 0x00A5, 0xFFE8],
+            'offset_mag': [0xFFB4, 0xFE9E, 0x027D],
+            'offset_gyr': [0x0002, 0xFFFF, 0xFFFF],
+            # Sensor standard deviation [x,y,z]
+            # Used to calculate covariance matrices
+            # defaults are used if parameters below are not provided
+            'variance_acc': [0.017, 0.017, 0.017], # [m/s^2]
+            'variance_angular_vel': [0.04, 0.04, 0.04], # [rad/s]
+            'variance_orientation': [0.0159, 0.0159, 0.0159], # [rad]
+            'variance_mag': [0.0, 0.0, 0.0], # [Tesla]
+        }],
         remappings=[("imu", "imu/data")]
-    )
-
-    gps_node = Node(
-        package='nmea_navsat_driver',
-        executable='nmea_serial_driver',
-        output='screen',
-        respawn=True,
-        respawn_delay=10,
-        parameters=[
-            {'port' : '/dev/ttyUSBGPS' },
-            {'baud' : 9600 },
-            {'frame_id' : 'gps_link' },
-            {'time_ref_source' : 'gps' },
-            {'use_GNSS_time' : False },
-            {'useRMC' : False }
-        ],
-        remappings=[("fix", "gps/fix")]
-    )
-
-    navsat_localizer = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource([os.path.join(package_path,'launch','dual_ekf_navsat.launch.py')]
-                ), launch_arguments={'use_sim_time': 'false', 'robot_model' : robot_model}.items()
     )
 
     drive_include = GroupAction(
         actions=[
             twist_mux,
-            delayed_controller_manager,
-            delayed_diff_drive_spawner,
-            delayed_joint_broad_spawner
+            # delayed_controller_manager,
+            # delayed_diff_drive_spawner,
+            # delayed_joint_broad_spawner
         ]
     )
 
     sensors_include = GroupAction(
         actions=[
-            ldlidar_node,
-            gps_node,
-            mpu9250driver_node
+            ydlidar_node,
+            bno055_driver_node
         ]
     )
 
@@ -219,32 +203,32 @@ def generate_launch_description():
         actions=[
             LogInfo(msg='============ starting LOCALIZERS ==============='),
             odom_localizer, # needed for slam_toolbox. cartographer doesn't need it when cartographer.launch.py uses direct mapping
-            #tf_localizer,
+            amcl_localization,
             #navsat_localizer,
             # use either map_server, OR cartographer OR slam_toolbox, as they are all mappers
-            #map_server,    # localization is left to GPS
-            #cartographer, # localization via LIDAR
-            slam_toolbox, # localization via LIDAR
+            # map_server,       # localization is left to GPS
+            # amcl_node,        # standalone AMCL node
+            # cartographer, # localization via LIDAR
+            # slam_toolbox, # localization via LIDAR
         ]
     )
 
-    delayed_loc = TimerAction(period=10.0, actions=[localizers_include])
+    delayed_loc = TimerAction(period=5.0, actions=[localizers_include])
 
-    delayed_nav = TimerAction(period=20.0, actions=[nav2])
+    delayed_nav = TimerAction(period=15.0, actions=[nav2])
 
-    # Launch them all!
+# Launch them all!
     return LaunchDescription([
-
         DeclareLaunchArgument(
             'use_sim_time',
             default_value='false',
-            description='Use simulation (Gazebo) clock if true'),
-
+            description='Use simulation (Gazebo) clock if true'
+        ),
         rsp,
         # joystick,
         drive_include,
         sensors_include,
+        roboclaw,
         delayed_loc,
         delayed_nav
     ])
-

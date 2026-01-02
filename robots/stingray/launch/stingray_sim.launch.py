@@ -4,17 +4,11 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction, GroupAction
-from launch.actions import RegisterEventHandler, SetEnvironmentVariable, LogInfo
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node
+from launch.actions import RegisterEventHandler, SetEnvironmentVariable, LogInfo
 from launch.event_handlers import OnProcessStart
-
-#
-# To launch stingray sim:
-#
-# cd ~/robot_ws; colcon build; ros2 launch articubot_one stingray_sim.launch.py
-#
+from launch_ros.actions import Node
 
 def generate_launch_description():
 
@@ -252,12 +246,11 @@ def generate_launch_description():
 
     # Launch them all!
     return LaunchDescription([
-
         DeclareLaunchArgument(
             'use_sim_time',
             default_value='true',
-            description='Use simulation (Gazebo) clock if true'),
-
+            description='Use simulation (Gazebo) clock if true'
+        ),
         rsp,
         joystick,
         twist_mux,
