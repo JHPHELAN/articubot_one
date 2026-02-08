@@ -2,6 +2,8 @@ from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from articubot_one.launch_utils.helpers import include_launch
+from ament_index_python.packages import get_package_share_directory
+import os
 
 #
 # Generate launch description for Stingray robot sensors
@@ -23,58 +25,46 @@ def generate_launch_description():
 
     # sensor nodes don't depend on robot_model and don't use package_name
 
-    # Lidar node - see:
-    #     https://github.com/Slamtec/rplidar_ros/tree/ros2-devel
-    #     https://github.com/Slamtec/rplidar_ros/tree/ros2-devel/launch
-    rplidar_node = Node(
-            package='rplidar_ros',
-            executable='rplidar_composition',
+    # Lidar node - LDROBOT LiDAR
+    # See: https://github.com/ldrobotSensorTeam/ldlidar_ros2
+    # Adjust 'product_name' and 'port_name' based on your specific ldlidar model
+    ldlidar_node = Node(
+            package='ldlidar_ros2',
+            executable='ldlidar_ros2_node',
+            name='ldlidar_publisher',
+            namespace=namespace,
             output='screen',
             parameters=[{
-                'serial_port': '/dev/serial/by-path/platform-fd500000.pcie-pci-0000:01:00.0-usb-0:1.3:1.0-port0',
-                'frame_id': 'laser_frame',
-                'angle_compensate': True,
-                'scan_mode': 'Standard'
+                'product_name': 'LDLiDAR_LD19',  # Change to LDLiDAR_LD06, LD14, LD14P, or LD19 as needed
+                'laser_scan_topic_name': 'scan',
+                'point_cloud_2d_topic_name': 'pointcloud2d',
+                'frame_id': 'base_laser',  # Changed from 'laser_frame' to match URDF
+                'port_name': '/dev/ldlidar',  # Persistent device name via udev rules
+                'serial_baudrate': 230400,
+                'laser_scan_dir': True,
+                'enable_angle_crop_func': False,
+                'angle_crop_min': 135.0,
+                'angle_crop_max': 225.0,
+                'range_min': 0.02,
+                'range_max': 12.0
             }]
     )
 
-    bno055_driver_node = Node(
-        package='bno055',
+    # Load BNO085 config file
+    bno085_config = os.path.join(
+        get_package_share_directory(package_name),
+        'robots', robot_model, 'config', 'bno085_i2c.yaml'
+    )
+    
+    bno085_driver_node = Node(
+        package='bno08x_driver',
         namespace=namespace,
-        executable='bno055',
-        name='bno055',
+        executable='bno08x_driver',
+        name='bno08x_driver',
         output='screen',
         respawn=True,
         respawn_delay=4,
-        parameters=[{
-            # see https://github.com/flynneva/bno055
-            #     https://github.com/slgrobotics/robots_bringup/blob/main/Docs/Sensors/BNO055%20IMU.md
-            'ros_topic_prefix': '',
-            'connection_type': 'i2c',
-            'i2c_bus': 1,
-            'i2c_addr': 0x29,   # Adafruit - 0x28, GY Clone - 0x29 (with both jumpers closed)
-            'data_query_frequency': 30,
-            'calib_status_frequency': 0.1,
-            'frame_id': 'imu_link',
-            'operation_mode': 0x0C, # 0x0C = FMC_ON, 0x0B - FMC_OFF, 0x05 - ACCGYRO, 0x06 - MAGGYRO
-            'placement_axis_remap': 'P1', # P1 - default, ENU. See Bosch BNO055 datasheet section "Axis Remap"
-            'acc_factor': 100.0,
-            'mag_factor': 16000000.0,
-            'gyr_factor': 900.0,
-            'grav_factor': 100.0,
-            'set_offsets': False, # set to true to use offsets below
-            'offset_acc': [0xFFEC, 0x00A5, 0xFFE8],
-            'offset_mag': [0xFFB4, 0xFE9E, 0x027D],
-            'offset_gyr': [0x0002, 0xFFFF, 0xFFFF],
-            # Sensor standard deviation [x,y,z]
-            # Used to calculate covariance matrices
-            # driver defaults are used if parameters below are not provided - bno055/src/bno055/bno055/registers.py:255
-            # see https://chatgpt.com/s/t_691b60f38e1c8191a0a309cbcf99e478
-            'variance_acc': [0.017, 0.017, 0.017], # [m/s^2]      defaults: [0.017, 0.017, 0.017]
-            'variance_angular_vel': [0.04, 0.04, 0.04], # [rad/s] defaults: [0.04, 0.04, 0.04]
-            'variance_orientation': [0.0159, 0.0159, 0.0159], # [rad] - (roll, pitch, yaw)  defaults: [0.0159, 0.0159, 0.0159]
-            'variance_mag': [0.0, 0.0, 0.0], # [Tesla]            defaults: [0.0, 0.0, 0.0]
-        }],
+        parameters=[bno085_config],
         remappings=[("imu", "imu/data")]
     )
 
@@ -91,7 +81,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        rplidar_node,
-        bno055_driver_node,
+        ldlidar_node,
+        bno085_driver_node,
         ekf_imu_odom
     ])

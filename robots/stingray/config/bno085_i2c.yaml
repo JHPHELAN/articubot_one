@@ -1,0 +1,19 @@
+bno08x_driver:
+  ros__parameters:
+
+    frame_id: "imu_link"  # Match the existing frame_id
+
+    # Communication Interface
+    i2c:
+      enabled: true
+      bus: "/dev/i2c-1"
+      address: "0x4A"
+
+    publish:
+      magnetic_field: 
+        enabled: true
+        rate: 100   # max 100 Hz
+      imu:
+        enabled: true
+        rate: 100   # max 400 Hz
+        orientation_yaw_variance: 0.005
