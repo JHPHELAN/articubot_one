@@ -21,10 +21,16 @@
     <xacro:include filename="stingray_properties.xacro" />
     <xacro:include filename="robot_core.xacro" />
 
-    <xacro:property name="imu_offset_x" value="-0.04"/>
-    <xacro:property name="imu_offset_z" value="0"/>
-    <xacro:property name="imu_visual_size" value="0.01"/>
-    <xacro:include filename="../../../description/imu.xacro" />
+    <xacro:property name="imu_offset_x" value="0.0"/>
+    <xacro:property name="imu_offset_y" value="0.0"/>
+    <xacro:property name="imu_offset_z" value="0.0"/>
+    <xacro:property name="imu_rotation_x" value="0.0"/>
+    <xacro:property name="imu_rotation_y" value="0.0"/>
+    <xacro:property name="imu_rotation_z" value="0.0"/>
+
+    <!-- <xacro:property name="imu_visual_size" value="0.01"/> -->
+    <!-- <xacro:include filename="../../../description/BNOxxx_imu.xacro" /> -->
+    <xacro:include filename="BNOxxx_imu.xacro" />
 
     <!-- Note: regular camera and depth camera share chassis' "camera_link". Use one or another.  -->
     <!-- xacro:include filename="stingray_camera.xacro" / -->
