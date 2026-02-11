@@ -1,15 +1,13 @@
 from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 from articubot_one.launch_utils.helpers import include_launch
-from ament_index_python.packages import get_package_share_directory
-import os
 
 #
-# Generate launch description for Stingray robot sensors
+# Launch description for Stingray robot sensors.
+# Sensors are robot-specific, so keep them in a separate launch file.
 #
-# Sensors are almost always robot-specific, so we have this separate launch file.
-#   
 
 def generate_launch_description():
 
@@ -23,11 +21,8 @@ def generate_launch_description():
     # Keep interface compatible with being included from stingray.launch.py
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 
-    # sensor nodes don't depend on robot_model and don't use package_name
-
-    # Lidar node - LDROBOT LiDAR
-    # See: https://github.com/ldrobotSensorTeam/ldlidar_ros2
-    # Adjust 'product_name' and 'port_name' based on your specific ldlidar model
+    # LiDAR node (LDROBOT). See: https://github.com/ldrobotSensorTeam/ldlidar_ros2
+    # Adjust product_name/port_name for the installed model and udev rule.
     ldlidar_node = Node(
             package='ldlidar_ros2',
             executable='ldlidar_ros2_node',
@@ -50,11 +45,11 @@ def generate_launch_description():
             }]
     )
 
-    # Load BNO085 config file
-    bno085_config = os.path.join(
-        get_package_share_directory(package_name),
+    # BNO085 IMU config is robot-specific.
+    bno085_config = PathJoinSubstitution([
+        FindPackageShare(package_name),
         'robots', robot_model, 'config', 'bno085_i2c.yaml'
-    )
+    ])
     
     bno085_driver_node = Node(
         package='bno08x_driver',
@@ -68,8 +63,7 @@ def generate_launch_description():
         remappings=[("imu", "imu/data")]
     )
 
-    # We need to run an EKF filter here to ensure its output stabilizes before starting SLAM Toolbox or other Localizers.
-    # Localizers/mappers only publish the map to odom transform. Robot needs EKF filter to publish odom to base_link transform.
+    # Run EKF first so odom->base_link is stable before SLAM/localization.
     ekf_imu_odom = include_launch(
         package_name,
         ['launch', 'ekf_imu_odom.launch.py'],
