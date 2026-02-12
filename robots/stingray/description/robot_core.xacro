@@ -10,7 +10,7 @@
         <visual name="baselink_visual">
             <origin xyz="0 0 0"/>
             <geometry>
-                <sphere radius="0.01"/>
+                <sphere radius="0.005"/>
             </geometry>
             <material name="red"/>
         </visual>
@@ -78,7 +78,7 @@
     </link>
 
     <!-- WHEEL LINKS -->
-    <joint name="wheel_left_joint" type="continuous">
+    <joint name="left_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="left_wheel_link"/>
         <origin xyz="0.0 0.13 0.0" rpy="-${pi/2} 0.0 0.0"/>
@@ -110,7 +110,7 @@
     </link>
 
 
-    <joint name="wheel_right_joint" type="continuous">
+    <joint name="right_wheel_joint" type="continuous">
         <parent link="base_link"/>
         <child link="right_wheel_link"/>
         <origin xyz="0.0 -0.13 0.0" rpy="${pi/2} 0.0 0.0"/>

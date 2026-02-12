@@ -109,13 +109,13 @@ roboclaw_driver:
                                           # Set to true for navigation stack integration
                                           # Requires publish_odom: true
                                           
-    publish_joint_states: false           # Publish wheel joint states (/joint_states topic)
+    publish_joint_states: true           # Publish wheel joint states (/joint_states topic)
                                           # Set to true for robot_state_publisher and visualization
 
     # ============================================================================
     # DEBUGGING CONTROL - Enable for troubleshooting
     # ============================================================================
-    do_debug: true                       # True => Log RoboClaw commands and responses
+    do_debug: false                      # True => Log RoboClaw commands and responses
                                           # Enable to see detailed communication info
                                           # Useful for troubleshooting communication issues
                                           

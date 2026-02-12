@@ -22,7 +22,7 @@
     <link name="ldlidar_support_link">
         <!-- Front standoff -->
         <visual name="ldlidar_support_front">
-            <origin xyz="${ldlidar_support_offset_x + 0.0234} ${ldlidar_support_offset_y} ${ldlidar_support_height/2}" rpy="0.0 0.0 0.0"/>
+            <origin xyz="${ldlidar_offset_x + 0.0234} ${ldlidar_offset_y} ${ldlidar_support_height/2}" rpy="0.0 0.0 0.0"/>
             <geometry>
                 <cylinder radius="0.003175" length="${ldlidar_support_height}"/>
             </geometry>
@@ -30,7 +30,7 @@
         </visual>
         <!-- Right rear standoff -->
         <visual name="ldlidar_support_right">
-            <origin xyz="${ldlidar_support_offset_x - 0.00846} ${ldlidar_support_offset_y - 0.02333} ${ldlidar_support_height/2}" rpy="0.0 0.0 0.0"/>
+            <origin xyz="${ldlidar_offset_x - 0.00846} ${ldlidar_offset_y - 0.02333} ${ldlidar_support_height/2}" rpy="0.0 0.0 0.0"/>
             <geometry>
                 <cylinder radius="0.003175" length="${ldlidar_support_height}"/>
             </geometry>
@@ -38,7 +38,7 @@
         </visual>
         <!-- Left rear standoff -->
         <visual name="ldlidar_support_left">
-            <origin xyz="${ldlidar_support_offset_x - 0.00846} ${ldlidar_support_offset_y + 0.02333} ${ldlidar_support_height/2}" rpy="0.0 0.0 0.0"/>
+            <origin xyz="${ldlidar_offset_x - 0.00846} ${ldlidar_offset_y + 0.02333} ${ldlidar_support_height/2}" rpy="0.0 0.0 0.0"/>
             <geometry>
                 <cylinder radius="0.003175" length="${ldlidar_support_height}"/>
             </geometry>
