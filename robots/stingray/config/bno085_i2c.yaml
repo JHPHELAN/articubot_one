@@ -1,3 +1,8 @@
+# Stingray BNO085 config
+# See https://github.com/bnbhat/bno08x_ros2_driver
+#     https://github.com/slgrobotics/bno08x_ros2_driver  (improved fork)
+#     https://github.com/slgrobotics/robots_bringup/blob/main/Docs/Sensors/BNO085%20IMU.md
+#
 bno08x_driver:
   ros__parameters:
 

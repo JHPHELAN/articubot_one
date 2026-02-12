@@ -29,20 +29,21 @@ def generate_launch_description():
             name='ldlidar_publisher',
             namespace=namespace,
             output='screen',
-            parameters=[{
-                'product_name': 'LDLiDAR_LD19',  # Change to LDLiDAR_LD06, LD14, LD14P, or LD19 as needed
-                'laser_scan_topic_name': 'scan',
-                'point_cloud_2d_topic_name': 'pointcloud2d',
-                'frame_id': 'base_laser',  # Changed from 'laser_frame' to match URDF
-                'port_name': '/dev/ldlidar',  # Persistent device name via udev rules
-                'serial_baudrate': 230400,
-                'laser_scan_dir': True,
-                'enable_angle_crop_func': False,
-                'angle_crop_min': 135.0,
-                'angle_crop_max': 225.0,
-                'range_min': 0.02,
-                'range_max': 12.0
-            }]
+            parameters=[
+                {'use_sim_time': use_sim_time},
+                {'product_name': 'LDLiDAR_LD19'},  # Change to LDLiDAR_LD06, LD14, LD14P, or LD19 as needed
+                {'laser_scan_topic_name': 'scan'},
+                {'point_cloud_2d_topic_name': 'pointcloud2d'},
+                {'frame_id': 'base_laser'},  # Changed from 'laser_frame' to match URDF
+                {'port_name': '/dev/ldlidar'},  # Persistent device name via udev rules
+                {'serial_baudrate': 230400},
+                {'laser_scan_dir': True},
+                {'enable_angle_crop_func': False},
+                # {'angle_crop_min': 135.0},
+                # {'angle_crop_max': 225.0},
+                {'range_min': 0.02},
+                {'range_max': 12.0}
+            ]
     )
 
     # BNO085 IMU config is robot-specific.
