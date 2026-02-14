@@ -75,8 +75,18 @@ def generate_launch_description():
         }
     )
 
+    # OAK-D camera driver (DepthAI ROS driver) publishes image topics.
+    oakd_launch = include_launch(
+        package_name,
+        ['launch', 'oakd.launch.py'],
+        {
+            'namespace': namespace
+        }
+    )
+
     return LaunchDescription([
         ldlidar_node,
         bno085_driver_node,
-        ekf_imu_odom
+        ekf_imu_odom,
+        oakd_launch
     ])
