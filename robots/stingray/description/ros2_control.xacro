@@ -6,18 +6,16 @@
         <!-- Wheel geometry information - see controllers.yaml -->
 
         <hardware>
-            <xacro:unless value="$(arg sim_mode)">
-                <!-- Actual Stingray base hardware driver runs on the Stingray robot's Raspberry Pi 3B
-                     It publishes /joint_states [wheel_left_joint, wheel_right_joint] <- ! note the names !
-                     see https://github.com/slgrobotics/robots_bringup/tree/main/Docs/Stingray -->
-            </xacro:unless>
-
             <xacro:if value="$(arg sim_mode)">
                 <plugin>gz_ros2_control/GazeboSimSystem</plugin>
             </xacro:if>
+            <xacro:unless value="$(arg sim_mode)">
+                <!-- TODO: replace with your real hardware plugin -->
+                <plugin>roboclaw_driver/RoboClawSystem</plugin>
+            </xacro:unless>
         </hardware>
 
-        <joint name="wheel_left_joint">
+        <joint name="left_wheel_joint">
             <command_interface name="velocity">
                 <param name="min">-10</param>
                 <param name="max">10</param>
@@ -33,7 +31,7 @@
             </state_interface -->
         </joint>
 
-        <joint name="wheel_right_joint">
+        <joint name="right_wheel_joint">
             <command_interface name="velocity">
                 <param name="min">-10</param>
                 <param name="max">10</param>
