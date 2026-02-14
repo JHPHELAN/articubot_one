@@ -34,8 +34,14 @@
 
     <!-- Note: regular camera and depth camera share chassis' "camera_link". Use one or another.  -->
     <!-- xacro:include filename="stingray_camera.xacro" / -->
-    <xacro:include filename="stingray_depth_camera.xacro" />
-    
+    <!-- <xacro:include filename="stingray_depth_camera.xacro" /> -->
+    <!-- OAK-D Camera -->
+    <!-- <xacro:include filename="$(find articubot_one)/robots/stingray/description/oakd.xacro" /> -->
+    <xacro:include filename="$(find articubot_one)/description/oakd.xacro" />
+    <xacro:oakd_link mount_point="front_panel"/>
+    <xacro:oakd_joint x="0.023" y="0.01" z="0.030" roll="0" pitch="0" yaw="0" mount_point="front_panel"/>
+
+
     <!-- LDLidar configuration - ldlidar must be included before support to define properties -->
     <xacro:include filename="ldlidar.xacro" />
     <xacro:include filename="ldlidar_support.xacro" />
@@ -44,6 +50,6 @@
 
     <xacro:property name="open_circuit_voltage" value="14.0"/>
     <xacro:property name="battery_capacity" value="2.5"/>
-    <xacro:include filename="../../../description/battery.xacro" />
+    <xacro:include filename="Zeee_LiPo_battery.xacro" />
 
 </robot>

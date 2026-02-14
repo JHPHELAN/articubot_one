@@ -74,7 +74,16 @@ def launch_setup(context, *args, **kwargs):
     name = LaunchConfiguration("name").perform(context)
 
     # If RealSense compatibility is enabled, we need to override some parameters, topics and node names
-    parameter_overrides = {}
+    infra1_enabled = is_launch_config_true(context, "enable_infra1")
+    infra2_enabled = is_launch_config_true(context, "enable_infra2")
+    parameter_overrides = {
+        "left": {"i_publish_topic": infra1_enabled},
+        "right": {"i_publish_topic": infra2_enabled},
+        "stereo": {
+            "i_left_rect_publish_topic": infra1_enabled,
+            "i_right_rect_publish_topic": infra2_enabled,
+        },
+    }
     color_sens_name = "rgb"
     stereo_sens_name = "stereo"
     points_topic_name = f"{name}/points"
@@ -334,10 +343,12 @@ def generate_launch_description():
         DeclareLaunchArgument("pointcloud.enable", default_value="false"),
         DeclareLaunchArgument("enable_color", default_value="true"),
         DeclareLaunchArgument("enable_depth", default_value="true"),
-        DeclareLaunchArgument("enable_infra1", default_value="false"),
-        DeclareLaunchArgument("enable_infra2", default_value="false"),
-        DeclareLaunchArgument("depth_module.depth_profile", default_value="1280,720,30"),
-        DeclareLaunchArgument("rgb_camera.color_profile", default_value="1280,720,30"),
+        DeclareLaunchArgument("enable_infra1", default_value="true"),
+        DeclareLaunchArgument("enable_infra2", default_value="true"),
+        # DeclareLaunchArgument("depth_module.depth_profile", default_value="1280,720,30"),
+        DeclareLaunchArgument("depth_module.depth_profile", default_value="640,480,30"),
+        # DeclareLaunchArgument("rgb_camera.color_profile", default_value="1280,720,30"),
+        DeclareLaunchArgument("rgb_camera.color_profile", default_value="640,480,30"),
         DeclareLaunchArgument("depth_module.infra_profile", default_value="1280,720,30"),
     ]
 
