@@ -19,7 +19,7 @@ def generate_launch_description():
     namespace = LaunchConfiguration('namespace', default='')
 
     # Check if we're told to use sim time
-    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    use_sim_time = LaunchConfiguration('use_sim_time', default='False')
 
     # See /opt/ros/jazzy/share/twist_mux/launch/twist_mux_launch.py
     #     https://github.com/ros-teleop/twist_mux/tree/rolling/src
@@ -34,7 +34,7 @@ def generate_launch_description():
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
-            'use_stamped': 'true',
+            'use_stamped': 'False',
             'cmd_vel_out': 'diff_cont/cmd_vel',
             'config_topics': twist_mux_params,
         }.items()
@@ -46,7 +46,7 @@ def generate_launch_description():
         namespace=namespace,
         executable="twist_mux",
         output='screen',
-        parameters=[twist_mux_params, {'use_sim_time': use_sim_time, 'use_stamped': True}],
+        parameters=[twist_mux_params, {'use_sim_time': use_sim_time, 'use_stamped': False}],
         remappings=[('cmd_vel_out','diff_cont/cmd_vel')]
     )
 
@@ -82,7 +82,7 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='false',
+            default_value='False',
             description='Use sim time if true'),
 
         LogInfo(msg=['============ starting TWIST_MUX  namespace: "', namespace, '"  use_sim_time: ', use_sim_time]),
