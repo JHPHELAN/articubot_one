@@ -2,6 +2,8 @@
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
+    <xacro:property name="oakd_x_length" value="0.033"/>
+
     <!-- BASE LINK -->
     <link name="base_link">
     <!-- Is located center wheel axles  in mid Y and Z axes of the chassis -->
@@ -28,9 +30,9 @@
     <!-- It is the 2d outside dimension of the robot and minimal thickness -->
     <link name="base_footprint">
         <visual name="footprint_visual">
-            <origin xyz="-${chassis_offset + caster_radius} 0.0 0.0"/>
+            <origin xyz="-${chassis_offset + caster_radius - (oakd_x_length/2)} 0.0 0.0"/>
             <geometry>
-                <box size="${chassis_length + (caster_radius * 2)} ${wheel_separation + wheel_thickness} 0.001"/>
+                <box size="${chassis_length + (caster_radius * 2) + oakd_x_length} ${wheel_separation + wheel_thickness} 0.001"/>
             </geometry>
             <material name="shadow_gray"/>
         </visual>
