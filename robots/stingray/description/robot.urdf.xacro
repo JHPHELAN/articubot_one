@@ -26,8 +26,7 @@
     <xacro:property name="imu_offset_z" value="0.0"/>
     <xacro:property name="imu_rotation_x" value="0.0"/>
     <xacro:property name="imu_rotation_y" value="0.0"/>
-    <!-- -35 degrees to correct IMU frame offset -->
-    <xacro:property name="imu_rotation_z" value="-0.7650"/>
+    <xacro:property name="imu_rotation_z" value="0.0"/>
 
     <!-- <xacro:property name="imu_visual_size" value="0.01"/> -->
     <!-- <xacro:include filename="../../../description/BNOxxx_imu.xacro" /> -->
