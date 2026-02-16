@@ -31,7 +31,7 @@ def generate_launch_description():
             'joy_config': 'xbox',
             'joy_dev': '0',
             'joy_vel':'cmd_vel_joy',
-            'publish_stamped_twist': 'true',
+            'publish_stamped_twist': 'False',
             'config_filepath': joystick_params_file,
         }.items()
     )
@@ -40,7 +40,7 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='false',
+            default_value='False',
             description='Use sim time if true'),
             
         joystick       
