@@ -13,14 +13,14 @@ teleop_twist_joy_node:
     axis_linear:  # Left thumb stick vertical
       x: 1
     scale_linear:
-      x: 0.7
+      x: 1.0
     scale_linear_turbo:
       x: 1.5
 
     axis_angular:  # Right thumb stick horizontal
-      yaw: 2
+      yaw: 3
     scale_angular:
-      yaw: 0.4
+      yaw: 1.0
 
     # teleop_twist_joy:teleop_node will block /cmd_vel_joy unless one of these buttons are held:
     enable_button: 4        # Left bumper (LB)
