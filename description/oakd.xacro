@@ -13,9 +13,11 @@
           <visual>
               <origin rpy="0 0 0" xyz="0 0 0" />
               <geometry>
-                      <mesh filename="package://articubot_one/assets/meshes/OAK-D.dae"/>
+                      <mesh filename="file://$(find articubot_one)/assets/meshes/OAK-D.dae"/>
               </geometry>
-               <material name="black" />
+               <material name="black">
+                   <color rgba="0.0 0.0 0.0 1.0"/>
+               </material>
           </visual>
           <collision>
               <origin rpy="0 0 0" xyz="${-oakd_x_length/2} 0 ${-oakd_z_height/4}" />
@@ -68,7 +70,7 @@
   <!-- Gazebo plugin for greyscale left/right stereo pairs -->
 
       <gazebo reference="oakd_${mount_point}">
-    <material>Gazebo/Grey</material>
+    <material>Gazebo/Black</material>
     <sensor type="multicamera" name="stereo_camera">
       <update_rate>30.0</update_rate>
       <camera name="left">
@@ -91,7 +93,7 @@
       </camera>
       <camera name="right">
         <pose>0 -0.07 0 0 0 0</pose>
-        <horizontal_fov>1.1.2566</horizontal_fov>
+        <horizontal_fov>1.2566</horizontal_fov>
         <image>
           <width>1200</width>
           <height>800</height>
@@ -129,7 +131,7 @@
  <!-- Gazebo plugin for center RGB camera -->
 
    <gazebo reference="oakd_${mount_point}">
-      <material>Gazebo/White</material>
+      <material>Gazebo/Black</material>
       <sensor type="camera" name="oakd_rgb_${mount_point}">
       <update_rate>30.0</update_rate>
       <camera name="head">

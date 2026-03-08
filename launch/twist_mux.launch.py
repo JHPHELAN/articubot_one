@@ -9,6 +9,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 # Generate the launch description for twist_mux with namespace support
 #
 # Note: this is a temporary solution until use_stamped is supported in the official twist_mux launch file
+# TwistStamped is apparently now supported
 #
 
 def generate_launch_description():
@@ -27,6 +28,7 @@ def generate_launch_description():
     twist_mux_params = PathJoinSubstitution([FindPackageShare(package_name), 'config', 'twist_mux.yaml'])
 
     # Note: this is how it should be, but "use_stamped" isn't working in that launch file
+    # TwistStamped is apparently now supported
     #       see /opt/ros/jazzy/share/twist_mux/launch/twist_mux_launch.py
     twist_mux_ = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -34,19 +36,23 @@ def generate_launch_description():
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
-            'use_stamped': 'False',
+            # 'use_stamped': 'False',
+            'use_stamped': 'True',
             'cmd_vel_out': 'diff_cont/cmd_vel',
             'config_topics': twist_mux_params,
         }.items()
     )
 
     # temporarily use direct Node instantiation until use_stamped is supported in the official launch file:
+    # TwistStamped is apparently now supported
+
     twist_mux_node = Node(
         package="twist_mux",
         namespace=namespace,
         executable="twist_mux",
         output='screen',
-        parameters=[twist_mux_params, {'use_sim_time': use_sim_time, 'use_stamped': False}],
+        # parameters=[twist_mux_params, {'use_sim_time': use_sim_time, 'use_stamped': False}],
+        parameters=[twist_mux_params, {'use_sim_time': use_sim_time, 'use_stamped': True}],
         remappings=[('cmd_vel_out','diff_cont/cmd_vel')]
     )
 

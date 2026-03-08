@@ -2,3 +2,4 @@
 .vscode
 /build
 *.pyc
+/home/ubuntu/robot_ws/src/articubot_one/robots/stingray/OBSOLETE/

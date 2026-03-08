@@ -11,13 +11,13 @@
 
 source /opt/ros/jazzy/setup.bash
 
-cd /home/ros/robot_ws
+cd /home/ubuntu/robot_ws
 colcon build
-cd /home/ros/launch
+cd /home/ubuntu/robot_ws/articubot_one/robots/stingray/launch/
 
-source /home/ros/robot_ws/install/setup.bash
+source /home/ubuntu/robot_ws/install/setup.bash
 
-ros2 launch /home/ros/robot_ws/src/articubot_one/robots/stingray/launch/stingray.launch.py
+ros2 launch /home/ubuntu/robot_ws/src/articubot_one/robots/stingray/launch/stingray.launch.py
 
 # Show arguments example:
 #ros2 launch /home/ros/robot_ws/src/articubot_one/robots/stingray/launch/stingray.launch.py  --show-arguments
