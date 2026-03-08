@@ -57,7 +57,7 @@
     <link name="base_laser"/>
 
     <gazebo reference="ldlaser_frame">
-        <material>Gazebo/Grey</material>
+        <material>Gazebo/Blue</material>
     	    <sensor name="ldlaser_frame" type="gpu_lidar">
             <pose> 0.0 0.0 0.0 0.0 0.0 0.0 </pose>
             <visualize>true</visualize>
