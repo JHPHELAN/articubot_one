@@ -27,14 +27,14 @@
             <geometry>
                 <box size="${ldlidar_chassis_width} ${ldlidar_chassis_width} ${ldlidar_chassis_height}"/>
             </geometry>
-            <material name="blue"/>
+            <material name="black"/>
         </visual>
         <visual>
             <origin xyz="0 0 ${ldlidar_chassis_height + ldlidar_height/2}" rpy="0 0 0"/>
             <geometry>
                 <cylinder radius="${ldlidar_radius}" length="${ldlidar_height}"/>
             </geometry>
-            <material name="blue"/>
+            <material name="black"/>
         </visual>
         <collision>
             <origin xyz="0 0 ${(ldlidar_chassis_height + ldlidar_height)/2}" rpy="0 0 0"/>
@@ -57,7 +57,7 @@
     <link name="base_laser"/>
 
     <gazebo reference="ldlaser_frame">
-        <material>Gazebo/Grey</material>
+        <material>Gazebo/Black</material>
     	    <sensor name="ldlaser_frame" type="gpu_lidar">
             <pose> 0.0 0.0 0.0 0.0 0.0 0.0 </pose>
             <visualize>true</visualize>
