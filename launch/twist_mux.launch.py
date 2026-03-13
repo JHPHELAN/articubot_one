@@ -34,7 +34,8 @@ def generate_launch_description():
         ),
         launch_arguments={
             'use_sim_time': use_sim_time,
-            'use_stamped': 'False',
+            # 'use_stamped': 'False',
+            'use_stamped': 'True',
             'cmd_vel_out': 'diff_cont/cmd_vel',
             'config_topics': twist_mux_params,
         }.items()
@@ -46,7 +47,8 @@ def generate_launch_description():
         namespace=namespace,
         executable="twist_mux",
         output='screen',
-        parameters=[twist_mux_params, {'use_sim_time': use_sim_time, 'use_stamped': False}],
+        # parameters=[twist_mux_params, {'use_sim_time': use_sim_time, 'use_stamped': False}],
+        parameters=[twist_mux_params, {'use_sim_time': use_sim_time, 'use_stamped': True}],
         remappings=[('cmd_vel_out','diff_cont/cmd_vel')]
     )
 
@@ -72,7 +74,7 @@ def generate_launch_description():
         remappings={('twist', 'diff_cont/cmd_vel')},
         parameters=[{
             'use_sim_time': use_sim_time,
-            'use_stamped': 'true',
+            'use_stamped': 'True',
             'frame_id': 'base_link',
             'scale': 1.0,
             'vertical_position': 2.0}]

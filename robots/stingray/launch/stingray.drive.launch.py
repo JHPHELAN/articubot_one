@@ -46,8 +46,8 @@ def generate_launch_description():
     drive_launch = GroupAction(
         actions=[
             Node(
-                package='roboclaw_driver',
-                executable='roboclaw_driver_node',
+                package='ros2_roboclaw_driver',
+                executable='ros2_roboclaw_driver_node',
                 name='roboclaw_driver',
                 parameters=[roboclaw_params_file],
                 remappings=[('cmd_vel', 'diff_cont/cmd_vel'), ('odom', 'diff_cont/odom')],

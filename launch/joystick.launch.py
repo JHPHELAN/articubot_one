@@ -31,7 +31,8 @@ def generate_launch_description():
             'joy_config': 'xbox',
             'joy_dev': '0',
             'joy_vel':'cmd_vel_joy',
-            'publish_stamped_twist': 'False',
+            # 'publish_stamped_twist': 'False',
+            'publish_stamped_twist': 'True',
             'config_filepath': joystick_params_file,
         }.items()
     )

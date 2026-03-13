@@ -2,6 +2,7 @@
 # See https://github.com/wimblerobotics/roboclaw_driver/blob/main/config/motor_driver.yaml
 #
 
+# motor_driver_node:
 roboclaw_driver:
   ros__parameters:
     # ============================================================================
@@ -14,6 +15,8 @@ roboclaw_driver:
     baud_rate: 230400                     # Serial communication baud rate
                                           # Must match RoboClaw configuration! 
                                           # Common values: 38400, 115200, 230400
+
+    device_port: 128
                                           
     device_timeout: 100                   # Command timeout in milliseconds
                                           # How long to wait for RoboClaw responses
@@ -21,14 +24,15 @@ roboclaw_driver:
     # ============================================================================
     # PUBLISHING RATES (Hz) - Controls how often data is published
     # ============================================================================
-    odometry_rate: 67.0                   # Rate for publishing odometry data
+    # odometry_rate: 67.0                   # Rate for publishing odometry data
                                           # Higher = more frequent position updates
                                           # TeensyV2 compatible default: 67.0
                                           
-    joint_states_rate: 30.0               # Rate for publishing wheel joint states  
+    # joint_states_rate: 30.0               # Rate for publishing wheel joint states  
                                           # Used by robot_state_publisher and rviz
-                                          
-    status_rate: 10.0                     # Rate for reading and publishing status information
+
+    # status_rate: 10.0                     
+    sensor_rate_hz: 20.0                  # Rate for reading and publishing status information
                                           # Includes motor currents, temperature, battery voltage
 
     # ============================================================================
@@ -42,10 +46,17 @@ roboclaw_driver:
                                           # ⚠️  MEASURE THIS PRECISELY! Affects turning accuracy
                                           # Measure center-to-center distance between drive wheels
                                           
-    encoder_counts_per_revolution: 1000   # Total encoder counts per wheel revolution
+    encoder_counts_per_revolution: 3200   # Total encoder counts per wheel revolution
                                           # ⚠️  CHECK YOUR ENCODER SPECS! Critical for speed/position
                                           # For quadrature encoders: 4 × (pulses per revolution)
                                           # Example: 250 PPR encoder = 1000 counts/rev
+    quad_pulses_per_revolution: 3200.0
+
+    # Based upon your particular motor gearing and encoders.
+    # These values are used to scale cmd_vel commands
+    # and encoder values to motor commands and odometry, respectfully.
+    quad_pulses_per_meter: 8226
+
 
     # ============================================================================
     # ROS FRAME NAMES - For TF tree and coordinate systems
@@ -79,22 +90,24 @@ roboclaw_driver:
     # Start with manufacturer recommendations, then fine-tune for performance
     
     # Motor 1 (typically left wheel)
-    m1_p: 7.26239                         # Proportional gain - higher = more aggressive response
-    m1_i: 2.43                            # Integral gain - eliminates steady-state error  
+    m1_p: 1.44651                         # Proportional gain - higher = more aggressive response
+    m1_i: 0.23036                            # Integral gain - eliminates steady-state error  
     m1_d: 0.0                             # Derivative gain - reduces overshoot
-    m1_qpps: 2437                         # Maximum quadrature pulses per second
+    m1_qpps: 12562                        # Maximum quadrature pulses per second
+    m1_max_current: 6.0
                                           # Should match your motor's maximum speed capability
     
     # Motor 2 (typically right wheel)  
-    m2_p: 7.26239                         # Proportional gain
-    m2_i: 2.43                            # Integral gain
+    m2_p: 1.29896                         # Proportional gain
+    m2_i: 0.21047                         # Integral gain
     m2_d: 0.0                             # Derivative gain  
-    m2_qpps: 2437                         # Maximum quadrature pulses per second
+    m2_qpps: 14062                        # Maximum quadrature pulses per second
+    m2_max_current: 6.0
 
     # ============================================================================
     # MOTOR ACCELERATION SETTINGS
     # ============================================================================
-    accel: 3000                           # Motor acceleration in encoder counts per second squared
+    accel_quad_pulses_per_second: 1000    # Motor acceleration in encoder counts per second squared
                                           # Higher = faster acceleration, but may cause wheel slip
                                           # Lower = smoother but slower acceleration
 
