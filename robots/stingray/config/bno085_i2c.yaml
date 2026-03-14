@@ -8,6 +8,12 @@ bno08x_driver:
 
     frame_id: "imu_link"  # Match the existing frame_id
 
+    # Disable magnetometer — use SH2_GAME_ROTATION_VECTOR (relative orientation)
+    # instead of SH2_ROTATION_VECTOR (absolute/magnetic north)
+    imu:
+      use_magnetometer: false
+      orientation_yaw_variance: 0.005
+
     # Communication Interface
     i2c:
       enabled: true
@@ -21,4 +27,3 @@ bno08x_driver:
       imu:
         enabled: true
         rate: 100   # max 400 Hz
-        orientation_yaw_variance: 0.005
