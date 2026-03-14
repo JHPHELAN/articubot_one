@@ -80,7 +80,8 @@ def generate_launch_description():
         package_name,
         ['launch', 'oakd.launch.py'],
         {
-            'namespace': namespace
+            'namespace': namespace,
+            'parent_frame': 'oakd_front_panel'
         }
     )
 
