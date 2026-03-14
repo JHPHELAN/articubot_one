@@ -41,16 +41,12 @@ def generate_launch_description():
 
     localizer_type = 'slam_toolbox' # 'amcl', 'map_server_tf', 'cartographer', 'slam_toolbox'
 
-    # Choose one:
-    # Map file for localizers that support it (map_server, amcl):
-    map_file = 'Stormy.yaml' # empty 600x600 cells 0.25 m per cell map by default (or no starting map for SLAM Toolbox)
-    #map_file = PathJoinSubstitution([FindPackageShare(package_name), 'assets', 'maps', 'empty_map.yaml'])
-    #map_file = PathJoinSubstitution([FindPackageShare(package_name), 'assets', 'maps', 'warehouse.yaml']) # result of run in Warehouse world
-    #map_file = '/opt/ros/jazzy/share/nav2_bringup/maps/warehouse.yaml' # original Nav2 warehouse map
-    #
-    # For SlAM Toolbox, we can use previously saved serialized map:
-    #map_file = 'stingray_map_serial' # previously saved serialized map, relative to launch directory (normally ~/robot_ws)
-    #map_file = '/home/sergei/robot_ws/stingray_map_serial' # previously saved serialized map, full path OK too
+    # Default map for SLAM Toolbox: posegraph path without extension (it appends .posegraph/.data)
+    # For map_server/amcl: use a .yaml path instead (e.g. 'Stormy.yaml')
+    # Override from CLI:  ros2 launch articubot_one stingray.launch.py map:=/full/path/to/my_map
+    map_file = LaunchConfiguration('map', default=PathJoinSubstitution(
+        [FindPackageShare(package_name), 'assets', 'maps', 'Stormy']
+    ))
 
     localizers_include = include_launch(
         package_name,
@@ -164,6 +160,14 @@ def generate_launch_description():
             'namespace',
             default_value='',
             description='Top-level namespace for multi-robot deployment'
+        ),
+
+        DeclareLaunchArgument(
+            'map',
+            default_value=PathJoinSubstitution(
+                [FindPackageShare('articubot_one'), 'assets', 'maps', 'Stormy']
+            ),
+            description='Map path: posegraph (no ext) for slam_toolbox, .yaml for map_server/amcl'
         ),
 
         LogInfo(msg=[
