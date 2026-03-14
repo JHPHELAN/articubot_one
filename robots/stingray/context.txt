@@ -1,0 +1,10 @@
+Raspberry Pi 5b 8GB
+Ubuntu 24.04.3
+ROS2 jazzy
+2 computers:
+   Stingray the robot
+     stingray.launch.py
+   LinuxBox the laptop
+     ros2 launch articubot_one joystick.launch.py
+     Rviz2
+     
