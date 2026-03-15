@@ -56,7 +56,7 @@ def generate_launch_description():
         'collision_monitor',
         'bt_navigator',
         'waypoint_follower',
-        'docking_server',
+        # 'docking_server',  # disabled — segfaults on ARM64 and not needed
     ]
 
     # Map fully qualified names to relative ones so the node's namespace can be prepended.
@@ -227,17 +227,18 @@ def generate_launch_description():
                 arguments=['--ros-args', '--log-level', log_level],
                 remappings=remappings,
             ),
-            Node(
-                package='opennav_docking',
-                executable='opennav_docking',
-                name='docking_server',
-                output='screen',
-                respawn=use_respawn,
-                respawn_delay=2.0,
-                parameters=[configured_params],
-                arguments=['--ros-args', '--log-level', log_level],
-                remappings=remappings,
-            ),
+            # docking_server disabled — segfaults on ARM64 and not needed
+            # Node(
+            #     package='opennav_docking',
+            #     executable='opennav_docking',
+            #     name='docking_server',
+            #     output='screen',
+            #     respawn=use_respawn,
+            #     respawn_delay=2.0,
+            #     parameters=[configured_params],
+            #     arguments=['--ros-args', '--log-level', log_level],
+            #     remappings=remappings,
+            # ),
             Node(
                 package='nav2_lifecycle_manager',
                 executable='lifecycle_manager',
@@ -323,14 +324,15 @@ def generate_launch_description():
                         extra_arguments=[{'use_intra_process_comms': True}],
                         remappings=remappings,
                     ),
-                    ComposableNode(
-                        package='opennav_docking',
-                        plugin='opennav_docking::DockingServer',
-                        name='docking_server',
-                        parameters=[configured_params],
-                        extra_arguments=[{'use_intra_process_comms': True}],
-                        remappings=remappings,
-                    ),
+                    # docking_server disabled — segfaults on ARM64 and not needed
+                    # ComposableNode(
+                    #     package='opennav_docking',
+                    #     plugin='opennav_docking::DockingServer',
+                    #     name='docking_server',
+                    #     parameters=[configured_params],
+                    #     extra_arguments=[{'use_intra_process_comms': True}],
+                    #     remappings=remappings,
+                    # ),
                     ComposableNode(
                         package='nav2_lifecycle_manager',
                         plugin='nav2_lifecycle_manager::LifecycleManager',

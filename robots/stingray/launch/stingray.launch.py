@@ -39,13 +39,13 @@ def generate_launch_description():
 
     # Note: we can only use 'map_server_tf' here as Stingray is indoors only and does not have Navsat to provide map->odom TF
 
-    localizer_type = 'slam_toolbox' # 'amcl', 'map_server_tf', 'cartographer', 'slam_toolbox'
+    localizer_type = 'amcl' # 'amcl', 'map_server_tf', 'cartographer', 'slam_toolbox'
 
-    # Default map for SLAM Toolbox: posegraph path without extension (it appends .posegraph/.data)
-    # For map_server/amcl: use a .yaml path instead (e.g. 'Stormy.yaml')
+    # For amcl/map_server: use the .yaml occupancy grid map
+    # For slam_toolbox: use posegraph path without extension (it appends .posegraph/.data)
     # Override from CLI:  ros2 launch articubot_one stingray.launch.py map:=/full/path/to/my_map
     map_file = LaunchConfiguration('map', default=PathJoinSubstitution(
-        [FindPackageShare(package_name), 'assets', 'maps', 'Stormy']
+        [FindPackageShare(package_name), 'assets', 'maps', 'Stormy.yaml']
     ))
 
     localizers_include = include_launch(
@@ -121,7 +121,7 @@ def generate_launch_description():
     # Localizers are run with a delay to allow IMU and odometry to stabilize
     # Navigation stack is run with a further delay to allow map to stabilize
     loc_delay = 18.0    # seconds
-    nav_delay = 25.0
+    nav_delay = 35.0   # AMCL needs time to converge before Nav2 needs map->odom TF
 
     delayed_loc = delayed_include(loc_delay, "LOCALIZERS", localizers_include)
     delayed_nav = delayed_include(nav_delay, "NAVIGATION", navigation_include)
@@ -165,9 +165,9 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'map',
             default_value=PathJoinSubstitution(
-                [FindPackageShare('articubot_one'), 'assets', 'maps', 'Stormy']
+                [FindPackageShare('articubot_one'), 'assets', 'maps', 'Stormy.yaml']
             ),
-            description='Map path: posegraph (no ext) for slam_toolbox, .yaml for map_server/amcl'
+            description='Map path: .yaml for amcl/map_server, posegraph (no ext) for slam_toolbox'
         ),
 
         LogInfo(msg=[

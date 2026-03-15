@@ -12,7 +12,7 @@ roboclaw_driver:
                                           # Common values: /dev/ttyUSB0, /dev/ttyAMA0, /dev/ttyACM0
                                           # Use 'ls /dev/tty*' to find your device
     
-    baud_rate: 230400                     # Serial communication baud rate
+    baud_rate: 115200                     # Serial communication baud rate
                                           # Must match RoboClaw configuration! 
                                           # Common values: 38400, 115200, 230400
 
@@ -32,8 +32,8 @@ roboclaw_driver:
                                           # Used by robot_state_publisher and rviz
 
     # status_rate: 10.0                     
-    sensor_rate_hz: 20.0                  # Rate for reading and publishing status information
-                                          # Includes motor currents, temperature, battery voltage
+    sensor_update_rate: 10.0              # Rate for reading sensors and publishing odom/joint_states
+                                          # Was 20.0 — reduced to halve serial bus load (115200 baud)
 
     # ============================================================================
     # ROBOT PHYSICAL PARAMETERS - CRITICAL: MEASURE YOUR ROBOT CAREFULLY!
