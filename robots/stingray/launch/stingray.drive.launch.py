@@ -39,15 +39,15 @@ def generate_launch_description():
 
     # See https://github.com/wimblerobotics/roboclaw_driver
     roboclaw_params_file = PathJoinSubstitution([
-        FindPackageShare(package_name), "robots", robot_model, "config", "roboclaw.yaml"
+        FindPackageShare('roboclaw_driver'), "config", "motor_driver.yaml"
     ])
 
     # For real robot, include the RoboClaw driver:
     drive_launch = GroupAction(
         actions=[
             Node(
-                package='ros2_roboclaw_driver',
-                executable='ros2_roboclaw_driver_node',
+                package='roboclaw_driver',
+                executable='roboclaw_driver_node',
                 name='roboclaw_driver',
                 parameters=[roboclaw_params_file],
                 remappings=[('cmd_vel', 'diff_cont/cmd_vel'), ('odom', 'diff_cont/odom')],
