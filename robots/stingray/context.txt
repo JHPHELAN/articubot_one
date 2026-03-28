@@ -2,8 +2,19 @@ Raspberry Pi 5b 8GB
 Ubuntu 24.04.3
 ROS2 jazzy
 2 computers:
-   Stingray the robot
-     ros2 launch articubot_one stingray.launch.py
-   LinuxBox the laptop
-     ros2 launch articubot_one joystick.launch.py
-     Rviz2
+  Stingray the robot
+    2 wheel, diff drive, rear caster
+    wheel radius 0.062 m
+    wheel separation 0.26 m
+    ros2 launch articubot_one stingray.launch.py
+    RoboClaw 2x7a V5c firmware 4.2.8
+    Pololu 50:1 12V 64 CPR encoder = 3200 count/revolution
+      https://www.pololu.com/product/4753
+    LD19 LIDAR
+      https://www.ldrobot.com/images/2023/05/23/LDROBOT_LD19_Datasheet_EN_v2.6_Q1JXIRVq.pdf
+    BNO085 IMU
+      https://www.adafruit.com/product/4754#technical-details
+    OAK-D depthcamera
+  LinuxBox the laptop
+    ros2 launch articubot_one joystick.launch.py
+    Rviz2

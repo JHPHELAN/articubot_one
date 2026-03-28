@@ -89,5 +89,5 @@ def generate_launch_description():
         ldlidar_node,
         bno085_driver_node,
         ekf_imu_odom,
-        oakd_launch
+        #oakd_launch
     ])
