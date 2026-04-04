@@ -16,6 +16,7 @@ slam_toolbox:
     ceres_trust_strategy: LEVENBERG_MARQUARDT
     ceres_dogleg_type: TRADITIONAL_DOGLEG
     ceres_loss_function: None
+    num_threads: 4
 
     # ROS Parameters
     odom_frame: odom
@@ -23,7 +24,7 @@ slam_toolbox:
     base_frame: base_footprint
     scan_topic: /scan
     use_map_saver: true
-    mode: localization #mapping
+    mode: mapping #localization
 
     # lifelong params
     lifelong_search_use_tree: false
@@ -38,17 +39,17 @@ slam_toolbox:
     # if you'd like to immediately start continuing a map at a given pose
     # or at the dock, but they are mutually exclusive, if pose is given
     # will use pose
-    map_file_name: stingray_map_serial   # will be saved in the directory where the robot was launched
+    map_file_name: ""   # use deserialize service to load posegraphs at runtime
     # map_start_pose: [0.0, 0.0, 0.0]
     #map_start_at_dock: true
 
     debug_logging: false
-    throttle_scans: 1
+    throttle_scans: 3
     transform_publish_period: 0.02 #if 0 never publishes odometry - if >0, wheels will be jumping off
     map_update_interval: 5.0
     resolution: 0.05
     min_laser_range: 0.1
-    max_laser_range: 12.0  # LD19 range is ~12m, use it all for better localization
+    max_laser_range: 8.0  # Reduced from 12m - fewer points to match, faster on Pi
     minimum_time_interval: 0.5
     transform_timeout: 0.2
     tf_buffer_duration: 300.0    # Duration to store TF messages for lookup. Set high if running offline at multiple times speed in synchronous mode.
@@ -67,14 +68,14 @@ slam_toolbox:
     link_match_minimum_response_fine: 0.25  
     link_scan_maximum_distance: 3.0
     loop_search_maximum_distance: 6.0
-    do_loop_closing: false  # Disabled in localization mode — prevents bad closures from warping the map
+    do_loop_closing: true  # Enabled for mapping mode — helps when revisiting areas
     loop_match_minimum_chain_size: 10           
     loop_match_maximum_variance_coarse: 3.0  
     loop_match_minimum_response_coarse: 0.35    
     loop_match_minimum_response_fine: 0.45
 
     # Correlation Parameters - Correlation Parameters
-    correlation_search_space_dimension: 0.75
+    correlation_search_space_dimension: 0.5
     correlation_search_space_resolution: 0.01
     correlation_search_space_smear_deviation: 0.1 
 

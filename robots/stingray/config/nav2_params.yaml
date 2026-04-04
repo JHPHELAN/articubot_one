@@ -197,8 +197,8 @@ local_costmap:
       #Added above to improve slam exploration - 
       # see https://pastebin.com/spGSypvX
       #     https://robotics.stackexchange.com/questions/104215/gpsnavigation2-issues-navigating-with-an-empty-map-after-success-with-a-pre-b
-      update_frequency: 5.0 # Default: 5.0 Matches Laser scan frequency
-      publish_frequency: 5.0 # Default: 5.0 Matches Laser scan frequency (5 Hz)
+      update_frequency: 4.0 # Reduced from 5.0 to lower CPU load while keeping responsive local planning.
+      publish_frequency: 2.0 # Reduced from 5.0 to lower CPU/network load while maintaining smooth updates.
       global_frame: odom # Default: map.  "odom" keeps the local costmap consistent with the robot’s movement.
       robot_base_frame: base_link
       static_map: false
@@ -210,7 +210,7 @@ local_costmap:
       transform_tolerance: 0.5  # delay in transform (tf) data that is tolerable in seconds
 
       # Define either robot_radius or footprint. See "consider_footprint" in controller above.:
-      robot_radius: 0.22
+      robot_radius: 0.18  # Half max length (36cm diamond). Was 0.22 (rectangular diagonal).
       #footprint: "[[-0.75, -0.35], [-0.75, 0.35], [0.40, 0.35], [0.40, -0.35]]"
 
       plugins: ["voxel_layer", "denoise_layer", "inflation_layer"] # order matters here. “static_layer” is not needed for the local costmap.
@@ -250,7 +250,7 @@ local_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         # see http://wiki.ros.org/costmap_2d/hydro/inflation
         # See https://chatgpt.com/s/t_692127cb69908191b67ce0e1df8d9646
-        inflation_radius: 0.24  # Default: 0.55. Should be larger than robot footprint (radius 0.22)
+        inflation_radius: 0.20  # Default: 0.55. Should be larger than robot footprint (radius 0.18). Was 0.24.
         cost_scaling_factor: 4.0  # Much steeper decay near robot. Default: 1.0 The rate at which the cost decays exponentially across the inflation radius.
         inflate_unknown: false # Unknown cells will not be inflated as if they were lethal obstacles.
         inflate_around_unknown: false # will not inflate costs around unknown cells.
@@ -265,13 +265,13 @@ global_costmap:
       unknown_cost_value: 255 # slightly less than 255 to be more explorative, 0 - to prohibit planning into un-scanned space
       #lethal_cost_threshold: 100
       #Added above to improve slam exploration
-      update_frequency: 5.0 # Default: 5.0
-      publish_frequency: 3.0 # Default: 1.0
+      update_frequency: 1.0 # Reduced from 5.0 to lower global planning load.
+      publish_frequency: 1.0 # Reduced from 3.0 to default for stable, lighter global updates.
       global_frame: map
       robot_base_frame: base_link
 
       # Define either robot_radius or footprint. See "consider_footprint" in controller above.:
-      robot_radius: 0.22
+      robot_radius: 0.18  # Half max length (36cm diamond). Was 0.22 (rectangular diagonal).
       #footprint: "[[-0.75, -0.35], [-0.75, 0.35], [0.40, 0.35], [0.40, -0.35]]"
 
       resolution: 0.05 # Default: 0.1
@@ -306,7 +306,7 @@ global_costmap:
         # See http://wiki.ros.org/costmap_2d/hydro/inflation
         #     https://chatgpt.com/s/t_692127cb69908191b67ce0e1df8d9646
         cost_scaling_factor: 4.0 # Default: 1.0  The rate at which the cost decays exponentially across the inflation radius.
-        inflation_radius: 0.26  # a bit more conservative globally. Robot radius 0.22.
+        inflation_radius: 0.22  # Was 0.26. Slightly larger than robot_radius 0.18.
         inflate_unknown: false # Unknown cells will not be inflated as if they were lethal obstacles.
         inflate_around_unknown: false # will not inflate costs around unknown cells.
 
@@ -323,7 +323,7 @@ planner_server:
       plugin: "nav2_navfn_planner::NavfnPlanner"
       tolerance: 0.15 # Default: 0.5 meters. A tolerance around the goal.
       use_astar: false # False means the default Dijkstra’s algorithm.
-      allow_unknown: true # Allowing planning in unknown space gives more flexibility if the map is not fully explored.
+      allow_unknown: false # Stay on known free space — don't shortcut through unmapped areas.
 
 # see https://docs.nav2.org/configuration/packages/configuring-smoother-server.html
 smoother_server:

@@ -22,8 +22,8 @@ bno08x_driver:
 
     publish:
       magnetic_field: 
-        enabled: true
-        rate: 100   # max 100 Hz
+        enabled: false  # Not used - GAME_ROTATION_VECTOR ignores magnetometer. Disabling to reduce I2C load.
+        rate: 10
       imu:
         enabled: true
-        rate: 100   # max 400 Hz
+        rate: 50    # EKF runs at 30Hz; 50Hz is sufficient and halves I2C traffic vs 100Hz
