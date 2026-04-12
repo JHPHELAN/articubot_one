@@ -26,6 +26,7 @@
     <xacro:property name="imu_offset_z" value="0.0"/>
     <xacro:property name="imu_rotation_x" value="0.0"/>
     <xacro:property name="imu_rotation_y" value="0.0"/>
+    <!-- Note: imu_rotation_z has no effect on heading because EKF uses yaw_velocity only (imu0 yaw=false) -->
     <xacro:property name="imu_rotation_z" value="0.0"/>
 
     <!-- <xacro:property name="imu_visual_size" value="0.01"/> -->

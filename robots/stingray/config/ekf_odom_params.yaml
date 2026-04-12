@@ -99,7 +99,7 @@ ekf_filter_node_odom:
     odom0_config: [false, false, false,
                    false, false, false,
                     true,  true, false,
-                   false, false,  true, # let odom contribute yaw velocity, but not yaw pose
+                   false, false,  true, # wheel yaw velocity restored
                    false, false, false]
 
         #        [x_pos   , y_pos    , z_pos,
@@ -146,9 +146,9 @@ ekf_filter_node_odom:
 
     imu0: imu/data
     imu0_config: [false, false, false,
-                  true, true, false,
+                  false, false,  true,  # yaw orientation enabled
                   false, false, false,
-                  false, false, true,
+                  false, false,  true,
                   false, false, false]
 
         #        [x_pos   , y_pos    , z_pos,

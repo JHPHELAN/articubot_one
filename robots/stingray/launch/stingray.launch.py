@@ -39,7 +39,7 @@ def generate_launch_description():
 
     # Note: we can only use 'map_server_tf' here as Stingray is indoors only and does not have Navsat to provide map->odom TF
 
-    localizer_type_default = 'amcl' # 'amcl', 'map_server_tf', 'cartographer', 'slam_toolbox'
+    localizer_type_default = 'slam_toolbox' # 'amcl', 'map_server_tf', 'cartographer', 'slam_toolbox'
     localizer_type = LaunchConfiguration('localizer_type', default=localizer_type_default)
 
     # For amcl/map_server: use the .yaml occupancy grid map

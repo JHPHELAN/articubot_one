@@ -3,6 +3,10 @@ Ubuntu 24.04.3
 ROS2 jazzy
 2 computers:
   Stingray the robot
+    Map coordinate system:
+      +x = West (dock faces West/+x)
+      +y = North
+      dock is at origin (0,0) facing +x (West)
     2 wheel, diff drive, rear caster
     wheel radius 0.062 m
     wheel separation 0.26 m
@@ -13,8 +17,23 @@ ROS2 jazzy
     LD19 LIDAR
       https://www.ldrobot.com/images/2023/05/23/LDROBOT_LD19_Datasheet_EN_v2.6_Q1JXIRVq.pdf
     BNO085 IMU
+      it is oriented orthogonal to the robot with x facing the front of the robot
       https://www.adafruit.com/product/4754#technical-details
     OAK-D depthcamera
   LinuxBox the laptop
     ros2 launch articubot_one joystick.launch.py
     Rviz2
+AI dialog:
+  One Step At A Time
+    wait for me to reply 'done' before giving more directions
+    I can't keep up if you give me a long list on contingencies
+  Output in PLAIN TEXT only
+    No markdown bullets, headings, bash boxes
+    I need to be able to cut/past to my notes.
+  When editing files:
+    make the change but explain 
+      which file
+      which line(s)
+      before/after changes
+
+    
