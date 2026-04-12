@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Author: Claude Opus 4.6 April 2026
 """
 Convert Stormy house blueprint (walls-only JPG) to a Nav2 occupancy grid PGM.
 
