@@ -13,12 +13,9 @@ ROS2 jazzy
     ros2 launch articubot_one stingray.launch.py
     RoboClaw 2x7a V5c firmware 4.2.8
     Pololu 50:1 12V 64 CPR encoder = 3200 count/revolution
-      https://www.pololu.com/product/4753
     LD19 LIDAR
-      https://www.ldrobot.com/images/2023/05/23/LDROBOT_LD19_Datasheet_EN_v2.6_Q1JXIRVq.pdf
     BNO085 IMU
       it is oriented orthogonal to the robot with x facing the front of the robot
-      https://www.adafruit.com/product/4754#technical-details
     OAK-D depthcamera
   LinuxBox the laptop
     ros2 launch articubot_one joystick.launch.py
@@ -35,5 +32,3 @@ AI dialog:
       which file
       which line(s)
       before/after changes
-
-    

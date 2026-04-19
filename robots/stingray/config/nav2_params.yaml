@@ -76,8 +76,8 @@ controller_server:
     # Progress checker parameters
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
-      required_movement_radius: 0.5 # Default: 0.5 meters. A movement radius of 0.5 meters is a good threshold for determining if the robot has made sufficient progress
-      movement_time_allowance: 10.0 # Default: 10.0 seconds. If the robot doesn’t move the required radius within this time, it’s considered stuck. 
+      required_movement_radius: 0.5 # Default: 0.5 meters.
+      movement_time_allowance: 20.0 # Was 10.0. More patience for doorway negotiation before declaring stuck.
     # Goal checker parameters
     #precise_goal_checker:
     #  plugin: "nav2_controller::SimpleGoalChecker"
@@ -94,18 +94,18 @@ controller_server:
 
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController"
-      time_steps: 30 # Was 20. Increased to maintain planning horizon with smaller model_dt
-      model_dt: 0.1 # Was 0.25. Smaller for finer rotation control
-      batch_size: 1000 # Default: 1000
+      time_steps: 40
+      model_dt: 0.2 # Was 0.1. Horizon = 40*0.2*0.2 = 1.6m at full speed. Sees THROUGH doorways to free space beyond.
+      batch_size: 1000 # Default.
       ax_max: 1.0
       ax_min: -1.0
       ay_max: 0.0 # Default: 3.0 Should be 0.0 when lateral movement is not possible?
       az_max: 1.5
       vx_std: 0.2
       vy_std: 0.0 # Default: 0.2 Should be 0.0 when lateral movement is not possible?
-      wz_std: 0.4 # Default: 0.2
+      wz_std: 0.2 # Was 0.4. Reduced to default — more straight trajectory samples, fewer wild curves into walls.
       vx_max: 0.2
-      vx_min: -0.1
+      vx_min: -0.1  # Allow reverse for tight recovery maneuvers.
       vy_max: 0.0 # Default: 0.5 Should be 0.0 when lateral movement is not possible?
       wz_max: 0.25  # Was 0.5 - lower angular momentum so robot doesn't coast past target heading
       iteration_count: 1
@@ -132,7 +132,7 @@ controller_server:
       CostCritic: # obstacle avoidance
         enabled: true
         cost_power: 1
-        cost_weight: 3.81
+        cost_weight: 3.0  # Enough to follow inflation gradient to center of corridors.
         critical_cost: 300.0
         # Considering footprint in collision checking requires a non-circular robot footprint, not just radius.
         # See https://github.com/ros-navigation/navigation2/issues/5574
@@ -149,7 +149,7 @@ controller_server:
       GoalAngleCritic: # final rotation
         enabled: true
         cost_power: 1
-        cost_weight: 3.0
+        cost_weight: 5.0  # Was 3.0. Stronger to overpower GoalCritic arcing — stop then spin.
         threshold_to_consider: 0.15 # Was 0.5 - only fix heading when basically at goal, then rotate in place
       PathAlignCritic: # staying on path
         enabled: true
@@ -177,7 +177,7 @@ controller_server:
       PreferForwardCritic: # forward motion. Encourages the robot to drive forward.
         enabled: true
         cost_power: 1
-        cost_weight: 5.0 # how much the robot prefers forward motion.
+        cost_weight: 5.0
         threshold_to_consider: 0.5 # meters. When to stop caring about forward motion to allow any adjustments needed for final positioning
       TwirlingCritic: # smooth rotation. Prevent unnecessary dancing and spinning.
         enabled: true
@@ -247,8 +247,8 @@ local_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         # see http://wiki.ros.org/costmap_2d/hydro/inflation
         # See https://chatgpt.com/s/t_692127cb69908191b67ce0e1df8d9646
-        inflation_radius: 0.20  # Default: 0.55. Should be larger than robot footprint (radius 0.18). Was 0.24.
-        cost_scaling_factor: 4.0  # Much steeper decay near robot. Default: 1.0 The rate at which the cost decays exponentially across the inflation radius.
+        inflation_radius: 0.30  # Enough gradient (12cm zone) but doorway center is FREE (0.76m - 2*0.30 = 0.16m free corridor).
+        cost_scaling_factor: 3.0  # Moderate gradient near walls. Not a cliff (was 7), not a swamp (was 2.5).
         inflate_unknown: false # Unknown cells will not be inflated as if they were lethal obstacles.
         inflate_around_unknown: false # will not inflate costs around unknown cells.
 
@@ -302,8 +302,8 @@ global_costmap:
         enabled: true
         # See http://wiki.ros.org/costmap_2d/hydro/inflation
         #     https://chatgpt.com/s/t_692127cb69908191b67ce0e1df8d9646
-        cost_scaling_factor: 4.0 # Default: 1.0  The rate at which the cost decays exponentially across the inflation radius.
-        inflation_radius: 0.22  # Was 0.26. Slightly larger than robot_radius 0.18.
+        cost_scaling_factor: 3.0 # Match local costmap.
+        inflation_radius: 0.30  # Match local costmap. Doorway center is free.
         inflate_unknown: false # Unknown cells will not be inflated as if they were lethal obstacles.
         inflate_around_unknown: false # will not inflate costs around unknown cells.
 

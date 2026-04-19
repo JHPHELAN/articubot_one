@@ -24,7 +24,7 @@ from PIL import Image
 from collections import deque
 
 # ── Configuration ──────────────────────────────────────────────
-INPUT_IMAGE = '/home/ubuntu/robot_ws/src/articubot_one/assets/maps/StormyHoustMapWallsOnly.jpg'
+INPUT_IMAGE = '/home/ubuntu/robot_ws/src/articubot_one/assets/maps/StormyHouseMapWallsOnly.jpg'
 DOCK_IMAGE  = '/home/ubuntu/robot_ws/src/articubot_one/assets/maps/StormyHouseMapXMarksDock.jpg'
 OUTPUT_PGM  = '/home/ubuntu/robot_ws/src/articubot_one/assets/maps/Stormy_blueprint.pgm'
 OUTPUT_YAML = '/home/ubuntu/robot_ws/src/articubot_one/assets/maps/Stormy_blueprint.yaml'
@@ -132,21 +132,17 @@ dock_row_out = dock_row * scale_factor
 #   map_x = origin_x + c * resolution
 #   map_y = origin_y + (height-1-r) * resolution
 # At dock pixel: map_x=0, map_y=0
-#   0 = origin_x + dock_col_out * resolution
-#   0 = origin_y + (height-1-dock_row_out) * resolution
 origin_x = -dock_col_out * TARGET_RES
-origin_y = -(target_h - 1 - dock_row_out) * TARGET_RES
+
+# Flip vertically: JPG North-at-top doesn't match PGM y-axis direction.
+# After flipud, dock row becomes (height-1-dock_row_out).
+# Origin_y for flipped grid: 0 = origin_y + (h-1-(h-1-dock_row_out))*res
+#   → origin_y = -dock_row_out * res
+grid = np.flipud(grid)
+origin_y = -dock_row_out * TARGET_RES
 
 print(f"  Dock in output image: col={dock_col_out:.1f}, row={dock_row_out:.1f}")
 print(f"  YAML origin: [{origin_x:.3f}, {origin_y:.3f}, 0]")
-
-# ── Step 8b: Flip vertically for PGM ──────────────────────────
-# JPG row 0 = top of image, but Nav2 PGM row 0 = top = highest y.
-# The source JPG has North at top, but the grid was built with
-# row 0 = top of JPG. We need to flip so the PGM bottom row
-# matches the YAML origin (bottom-left corner).
-grid = np.flipud(grid)
-print("Flipped grid vertically for PGM output.")
 
 # ── Step 9: Save PGM (binary P5) ──────────────────────────────
 print(f"Saving PGM: {OUTPUT_PGM}")

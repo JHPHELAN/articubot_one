@@ -67,7 +67,7 @@ diff_cont:
     # Note: if not specified below, there will be no limits applied (default is NAN for missing parameters)
     linear:
       x:
-        max_velocity           : 0.3 # m/s - 2x original
+        max_velocity           : 0.5 # m/s - raised for turbo joystick mode
         min_velocity           : -0.01 # m/s
         max_acceleration       : 0.4  # m/s^2
         min_acceleration       : -0.2 # m/s^2

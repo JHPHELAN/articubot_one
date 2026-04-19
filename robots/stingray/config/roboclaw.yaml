@@ -74,9 +74,9 @@ roboclaw_driver:
                                           # Clamps angular velocity commands for safety
                                           # Start conservative, increase as needed
                                           
-    max_linear_velocity: 0.3              # Maximum forward/backward speed (meters/second)
+    max_linear_velocity: 0.5              # Maximum forward/backward speed (meters/second)
                                           # Clamps linear velocity commands for safety  
-                                          # Start conservative, increase as needed
+                                          # Was 0.3, raised for turbo joystick mode
 
     max_seconds_uncommanded_travel: 0.05   # Maximum time to allow robot to travel without receiving new commands
                                           # Safety timeout: motors stop if no cmd_vel for this duration
