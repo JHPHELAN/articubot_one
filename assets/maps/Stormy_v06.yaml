@@ -1,7 +1,7 @@
-image: Stormy_v59.pgm
+image: Stormy_v06.pgm
 mode: trinary
 resolution: 0.050
-origin: [-3.345, -1.494, 0]
+origin: [-3.237, -2.614, 0]
 negate: 0
 occupied_thresh: 0.65
 free_thresh: 0.196

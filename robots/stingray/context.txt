@@ -1,3 +1,5 @@
+computer name ubuntu@Stingray
+familiar name Stormy
 Raspberry Pi 5b 8GB
 Ubuntu 24.04.3
 ROS2 jazzy

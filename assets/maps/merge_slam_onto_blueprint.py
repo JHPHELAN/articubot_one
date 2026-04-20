@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """
-Merge SLAM-detected obstacles onto the blueprint map.
+Merge SLAM-detected obstacles onto the blueprint map (or a previous merged map).
 
-Takes the blueprint PGM (architect-accurate walls) and overlays
+Takes a base PGM (blueprint or previous merge) and overlays
 occupied pixels from a SLAM-generated PGM (furniture, obstacles).
 
 The two maps have different origins and sizes but the same resolution (0.05 m/px).
 We align them using their YAML origins and copy SLAM occupied pixels
-onto the blueprint where the blueprint currently shows free space.
+onto the base where the base currently shows free space.
 
 Usage:
-  python3 merge_slam_onto_blueprint.py <slam_map_name>
-  python3 merge_slam_onto_blueprint.py Stormy_v53
+  python3 merge_slam_onto_blueprint.py <slam_map_name> [base_map_name]
+  python3 merge_slam_onto_blueprint.py Stormy_v08              # merge onto blueprint
+  python3 merge_slam_onto_blueprint.py Stormy_v09 Stormy_merged_v08  # merge onto previous
 """
 
 import sys
@@ -19,18 +20,24 @@ import yaml
 import numpy as np
 from PIL import Image
 
-# ── Parse SLAM map name argument ───────────────────────────────
-if len(sys.argv) != 2:
-    print(f"Usage: {sys.argv[0]} <slam_map_name>")
-    print(f"  e.g.: {sys.argv[0]} Stormy_v53")
+# ── Parse arguments ────────────────────────────────────────────
+if len(sys.argv) < 2 or len(sys.argv) > 3:
+    print(f"Usage: {sys.argv[0]} <slam_map_name> [base_map_name]")
+    print(f"  e.g.: {sys.argv[0]} Stormy_v08")
+    print(f"  e.g.: {sys.argv[0]} Stormy_v09 Stormy_merged_v08")
     sys.exit(1)
 
 slam_name = sys.argv[1]
+base_name = sys.argv[2] if len(sys.argv) == 3 else None
 MAPS_DIR = '/home/ubuntu/robot_ws/src/articubot_one/assets/maps'
 
 # ── Configuration ──────────────────────────────────────────────
-BLUEPRINT_PGM  = f'{MAPS_DIR}/Stormy_blueprint.pgm'
-BLUEPRINT_YAML = f'{MAPS_DIR}/Stormy_blueprint.yaml'
+if base_name:
+    BLUEPRINT_PGM  = f'{MAPS_DIR}/{base_name}.pgm'
+    BLUEPRINT_YAML = f'{MAPS_DIR}/{base_name}.yaml'
+else:
+    BLUEPRINT_PGM  = f'{MAPS_DIR}/Stormy_blueprint.pgm'
+    BLUEPRINT_YAML = f'{MAPS_DIR}/Stormy_blueprint.yaml'
 SLAM_PGM       = f'{MAPS_DIR}/{slam_name}.pgm'
 SLAM_YAML      = f'{MAPS_DIR}/{slam_name}.yaml'
 OUTPUT_PGM     = f'{MAPS_DIR}/Stormy_merged.pgm'
@@ -48,9 +55,10 @@ BLUEPRINT_ORIGIN = read_origin(BLUEPRINT_YAML)
 SLAM_ORIGIN      = read_origin(SLAM_YAML)
 RESOLUTION = 0.05  # both maps
 
-print(f"Merging {slam_name} onto blueprint...")
-print(f"  Blueprint origin: {BLUEPRINT_ORIGIN}")
-print(f"  SLAM origin:      {SLAM_ORIGIN}")
+base_label = base_name if base_name else 'blueprint'
+print(f"Merging {slam_name} onto {base_label}...")
+print(f"  Base origin: {BLUEPRINT_ORIGIN}")
+print(f"  SLAM origin: {SLAM_ORIGIN}")
 
 # PGM values
 OCCUPIED = 0

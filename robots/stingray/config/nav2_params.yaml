@@ -26,7 +26,7 @@ bt_navigator:
     # Two navigators and their trees supporting different RViz2 mouse-click navigation modes: 
     navigators: ["navigate_to_pose", "navigate_through_poses"]
     # These two lines should be here for the param_substitutions in "*_nav.launch.py" to work:
-    default_nav_to_pose_bt_xml: "$(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_to_pose_w_replanning_and_recovery.xml"
+    default_nav_to_pose_bt_xml: "$(find-pkg-share articubot_one)/robots/stingray/config/navigate_to_pose_no_spin.xml"
     default_nav_through_poses_bt_xml: "$(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_through_poses_w_replanning_and_recovery.xml"
     navigate_to_pose: # Go to a single location
       plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
@@ -76,7 +76,7 @@ controller_server:
     # Progress checker parameters
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
-      required_movement_radius: 0.5 # Default: 0.5 meters.
+      required_movement_radius: 0.25 # Was 0.5. Lower so slow progress through tight passages counts.
       movement_time_allowance: 20.0 # Was 10.0. More patience for doorway negotiation before declaring stuck.
     # Goal checker parameters
     #precise_goal_checker:
