@@ -1,7 +1,7 @@
 computer name ubuntu@Stingray
 familiar name Stormy
 Raspberry Pi 5b 8GB
-Ubuntu 24.04.3
+Ubuntu 24.04
 ROS2 jazzy
 2 computers:
   Stingray the robot
@@ -34,3 +34,5 @@ AI dialog:
       which file
       which line(s)
       before/after changes
+Additional skills information available at:
+/home/ubuntu/.copilot/skills
