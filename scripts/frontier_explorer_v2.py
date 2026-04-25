@@ -193,6 +193,7 @@ class FrontierExplorerV2(Node):
                 elif v == -1:
                     unknown_cells.add((x, y))
 
+        # Frontier = free cell adjacent to unknown space.
         frontier_cells: Set[Cell] = set()
         for ux, uy in unknown_cells:
             for nx, ny in ((ux - 1, uy), (ux + 1, uy), (ux, uy - 1), (ux, uy + 1)):
@@ -202,6 +203,7 @@ class FrontierExplorerV2(Node):
         if not frontier_cells:
             return []
 
+        # Group frontier boundary cells into contiguous candidate regions.
         clusters = self._cluster_cells(frontier_cells)
         candidates: List[FrontierCandidate] = []
 
@@ -209,15 +211,18 @@ class FrontierExplorerV2(Node):
             if len(cluster) < self.min_cluster_size:
                 continue
 
+            # Use cluster centroid as a representative goal for that frontier region.
             cx = sum(c[0] for c in cluster) / len(cluster)
             cy = sum(c[1] for c in cluster) / len(cluster)
             wx = ox + (cx + 0.5) * res
             wy = oy + (cy + 0.5) * res
 
+            # Skip regions that have repeatedly failed to avoid ping-pong loops.
             key = self._goal_key(wx, wy)
             if self.goal_failures.get(key, 0) >= self.failures_before_blacklist:
                 continue
 
+            # Avoid immediately revisiting just-completed nearby goals.
             if self._too_close_to_recent(wx, wy):
                 continue
 
@@ -225,6 +230,7 @@ class FrontierExplorerV2(Node):
             if dist < self.min_goal_distance:
                 continue
 
+            # Prefer large frontier regions but penalize long detours.
             score = float(len(cluster)) - 0.7 * dist
             candidates.append(
                 FrontierCandidate(
@@ -236,6 +242,7 @@ class FrontierExplorerV2(Node):
                 )
             )
 
+        # Highest score first; live mode still verifies planner reachability before send.
         candidates.sort(key=lambda c: c.score, reverse=True)
         return candidates
 
@@ -275,6 +282,7 @@ class FrontierExplorerV2(Node):
         assert self.navigator is not None
         start = self._make_goal_pose(robot_xy[0], robot_xy[1])
         goal = self._make_goal_pose(gx, gy)
+        # Pre-check avoids dispatching goals that the global planner cannot realize.
         path = self.navigator.getPath(start, goal, use_start=True)
         return path is not None and len(path.poses) > 1
 
