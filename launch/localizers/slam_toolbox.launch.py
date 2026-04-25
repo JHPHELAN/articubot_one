@@ -43,10 +43,11 @@ def generate_launch_description():
             with open(base_params, 'r') as f:
                 params_content = yaml.safe_load(f) or {}
             
-            # Merge map_file_name if provided (non-empty)
-            if map_val:
-                params_content.setdefault('slam_toolbox', {}).setdefault('ros__parameters', {})
-                params_content['slam_toolbox']['ros__parameters']['map_file_name'] = map_val
+            # Merge map_file_name only for non-mapping modes.
+            slam_params = params_content.setdefault('slam_toolbox', {}).setdefault('ros__parameters', {})
+            slam_mode = str(slam_params.get('mode', '')).strip().lower()
+            if map_val and slam_mode != 'mapping':
+                slam_params['map_file_name'] = map_val
             
             # Write merged params to a temporary file (see /tmp/slam_toolbox_params_*.yaml)
             with tempfile.NamedTemporaryFile(

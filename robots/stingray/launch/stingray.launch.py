@@ -42,11 +42,14 @@ def generate_launch_description():
     localizer_type_default = 'slam_toolbox' # 'amcl', 'map_server_tf', 'cartographer', 'slam_toolbox'
     localizer_type = LaunchConfiguration('localizer_type', default=localizer_type_default)
 
-    # For amcl/map_server: use the .yaml occupancy grid map
-    # For slam_toolbox: keep this empty and load posegraph at runtime via loadgraph service.
+    # For amcl/map_server: use the .yaml occupancy grid map.
+    # For slam_toolbox mapping mode: map is ignored by the slam_toolbox wrapper.
     # Override from CLI:
     #   ros2 launch articubot_one stingray.launch.py localizer_type:=amcl map:=/full/path/to/map.yaml
-    map_file = LaunchConfiguration('map', default='')
+    default_map_file = PathJoinSubstitution([
+        FindPackageShare(package_name), 'assets', 'maps', 'Stormy_SE_study_20260425_131819.yaml'
+    ])
+    map_file = LaunchConfiguration('map', default=default_map_file)
 
     localizers_include = include_launch(
         package_name,
@@ -164,8 +167,8 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'map',
-            default_value='',
-            description='Map path for amcl/map_server (.yaml). Keep empty for slam_toolbox and use loadgraph.'
+            default_value=default_map_file,
+            description='Map path for amcl/map_server (.yaml). Override with map:=/full/path/map.yaml when needed.'
         ),
 
         LogInfo(msg=[
