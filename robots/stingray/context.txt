@@ -36,3 +36,37 @@ AI dialog:
       before/after changes
 Additional skills information available at:
 /home/ubuntu/.copilot/skills
+
+Hardware preflight (known-good as of 2026-04-24):
+  Confirm no stale stack:
+    pgrep -af 'roboclaw_driver_node|ldlidar_ros2_node|bno08x_driver|ekf_node|slam_toolbox|stingray.launch.py|component_container_mt' || true
+  Device checks:
+    ls -l /dev/ttyAMA0 /dev/ldlidar /dev/i2c-1
+    systemctl is-active serial-getty@ttyAMA0.service
+  Isolated drivers (expected stable):
+    RoboClaw:
+      ros2 run roboclaw_driver roboclaw_driver_node --ros-args --params-file /home/ubuntu/robot_ws/src/roboclaw_driver/config/motor_driver.yaml -r cmd_vel:=diff_cont/cmd_vel -r odom:=diff_cont/odom
+      expected /diff_cont/odom about 30 Hz
+    LD19:
+      ros2 run ldlidar_ros2 ldlidar_ros2_node --ros-args -p product_name:=LDLiDAR_LD19 -p laser_scan_topic_name:=scan -p point_cloud_2d_topic_name:=pointcloud2d -p frame_id:=base_laser -p port_name:=/dev/ldlidar -p serial_baudrate:=230400 -p laser_scan_dir:=true -p enable_angle_crop_func:=false -p angle_crop_min:=0.0 -p angle_crop_max:=0.0 -p range_min:=0.02 -p range_max:=12.0
+      expected /scan about 10 Hz
+    BNO085:
+      IMPORTANT: params apply only if node name is bno08x_driver
+      ros2 run bno08x_driver bno08x_driver --ros-args -r __node:=bno08x_driver --params-file /home/ubuntu/robot_ws/install/articubot_one/share/articubot_one/robots/stingray/config/bno085_i2c.yaml
+      expected /imu about 50 Hz
+  Combined hardware soak expectation:
+    /diff_cont/odom about 30 Hz, /scan about 9.7 to 10 Hz, /imu about 50 Hz
+  If full launch fails but isolated drivers pass:
+    suspect integration/lifecycle interaction, not a single dead device.
+
+Safe recovery sequence after any crash:
+  1) Stop all robot stack processes:
+    pkill -f 'stingray.launch.py|component_container_mt|frontier_explorer.py|slam_toolbox|ekf_node|roboclaw_driver_node|ldlidar_ros2_node|bno08x_driver' || true
+  2) Confirm clean slate:
+    pgrep -af 'stingray.launch.py|component_container_mt|frontier_explorer.py|slam_toolbox|ekf_node|roboclaw_driver_node|ldlidar_ros2_node|bno08x_driver' || true
+  3) Send zero velocity once:
+    source /opt/ros/jazzy/setup.bash && source /home/ubuntu/robot_ws/install/setup.bash && ros2 topic pub --once /cmd_vel geometry_msgs/msg/TwistStamped "{header: {frame_id: base_link}, twist: {linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}}"
+  4) Run hardware preflight checks above.
+  5) Relaunch baseline only:
+    source /opt/ros/jazzy/setup.bash && source /home/ubuntu/robot_ws/install/setup.bash && ros2 launch articubot_one stingray.launch.py
+  6) Wait 45 seconds and verify no CRC/timeouts before any explorer/autonomy node.
