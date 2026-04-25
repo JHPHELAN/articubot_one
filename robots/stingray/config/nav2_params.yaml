@@ -94,7 +94,7 @@ controller_server:
 
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController"
-      time_steps: 40
+      time_steps: 50
       model_dt: 0.2 # Was 0.1. Horizon = 40*0.2*0.2 = 1.6m at full speed. Sees THROUGH doorways to free space beyond.
       batch_size: 1000 # Default.
       ax_max: 1.0
@@ -109,7 +109,7 @@ controller_server:
       vy_max: 0.0 # Default: 0.5 Should be 0.0 when lateral movement is not possible?
       wz_max: 0.25  # Was 0.5 - lower angular momentum so robot doesn't coast past target heading
       iteration_count: 1
-      prune_distance: 1.7
+      prune_distance: 2.2
       transform_tolerance: 0.5  # delay in transform (tf) data that is tolerable in seconds
       temperature: 0.3 # Higher values make selection more random, potentially finding creative solutions
       gamma: 0.015 # cost sensitivity setting
@@ -132,7 +132,7 @@ controller_server:
       CostCritic: # obstacle avoidance
         enabled: true
         cost_power: 1
-        cost_weight: 3.0  # Enough to follow inflation gradient to center of corridors.
+        cost_weight: 2.4  # Slightly reduced to avoid over-cautious curve hugging in open passages.
         critical_cost: 300.0
         # Considering footprint in collision checking requires a non-circular robot footprint, not just radius.
         # See https://github.com/ros-navigation/navigation2/issues/5574
@@ -154,7 +154,7 @@ controller_server:
       PathAlignCritic: # staying on path
         enabled: true
         cost_power: 1
-        cost_weight: 14.0 # Default 10.0
+        cost_weight: 10.0 # Reduced from 14.0 to reduce curve-hugging in open passages.
         max_path_occupancy_ratio: 0.05
         trajectory_point_step: 4
         threshold_to_consider: 0.5 # meters. Stop worrying about strict path following when robot is very close to the goal.
@@ -247,8 +247,8 @@ local_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         # see http://wiki.ros.org/costmap_2d/hydro/inflation
         # See https://chatgpt.com/s/t_692127cb69908191b67ce0e1df8d9646
-        inflation_radius: 0.30  # Enough gradient (12cm zone) but doorway center is FREE (0.76m - 2*0.30 = 0.16m free corridor).
-        cost_scaling_factor: 3.0  # Moderate gradient near walls. Not a cliff (was 7), not a swamp (was 2.5).
+        inflation_radius: 0.20  # Reduced from 0.30. Total buffer = 0.18+0.20=0.38m/wall → genuine free center in ~0.80m doorways.
+        cost_scaling_factor: 3.0  # Reverted; scaling shape matters less when center is actually free.
         inflate_unknown: false # Unknown cells will not be inflated as if they were lethal obstacles.
         inflate_around_unknown: false # will not inflate costs around unknown cells.
 
@@ -303,7 +303,7 @@ global_costmap:
         # See http://wiki.ros.org/costmap_2d/hydro/inflation
         #     https://chatgpt.com/s/t_692127cb69908191b67ce0e1df8d9646
         cost_scaling_factor: 3.0 # Match local costmap.
-        inflation_radius: 0.30  # Match local costmap. Doorway center is free.
+        inflation_radius: 0.20  # Match local costmap. Reduced from 0.30 to open doorway center.
         inflate_unknown: false # Unknown cells will not be inflated as if they were lethal obstacles.
         inflate_around_unknown: false # will not inflate costs around unknown cells.
 
