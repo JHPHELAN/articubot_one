@@ -98,7 +98,7 @@ ekf_filter_node_odom:
 # if unspecified, effectively making this parameter required for each sensor.
     odom0_config: [false, false, false,
                    false, false, false,
-                    true,  true, false,
+                    true, false, false,
                    false, false,  true, # wheel yaw velocity restored
                    false, false, false]
 
@@ -146,7 +146,7 @@ ekf_filter_node_odom:
 
     imu0: imu/data
     imu0_config: [false, false, false,
-                  false, false,  true,  # yaw orientation enabled
+                  false, false, false,  # do not fuse absolute yaw; magnetic disturbances can cause heading snaps
                   false, false, false,
                   false, false,  true,
                   false, false, false]
@@ -165,7 +165,7 @@ ekf_filter_node_odom:
 # since usually absolute measurements from real imu's are not very accurate:
     imu0_differential: false
 
-    imu0_relative: true
+    imu0_relative: false
     imu0_queue_size: 10
 
 #    imu0_pose_rejection_threshold: 0.8                 # Note the difference in parameter names
