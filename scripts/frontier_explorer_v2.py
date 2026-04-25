@@ -39,6 +39,8 @@ class FrontierExplorerV2(Node):
         self.declare_parameter("recent_goal_memory", 6)
         self.declare_parameter("failures_before_blacklist", 2)
         self.declare_parameter("goal_key_resolution_m", 0.2)
+        self.declare_parameter("no_path_recovery_cycles", 6)
+        self.declare_parameter("costmap_clear_cooldown_sec", 30.0)
 
         self.dry_run = bool(self.get_parameter("dry_run").value)
         loop_hz = float(self.get_parameter("loop_hz").value)
@@ -48,12 +50,16 @@ class FrontierExplorerV2(Node):
         self.recent_goal_memory = int(self.get_parameter("recent_goal_memory").value)
         self.failures_before_blacklist = int(self.get_parameter("failures_before_blacklist").value)
         self.goal_key_resolution = float(self.get_parameter("goal_key_resolution_m").value)
+        self.no_path_recovery_cycles = int(self.get_parameter("no_path_recovery_cycles").value)
+        self.costmap_clear_cooldown_sec = float(self.get_parameter("costmap_clear_cooldown_sec").value)
 
         self.map_msg: Optional[OccupancyGrid] = None
         self.recent_goals: deque[Tuple[float, float]] = deque(maxlen=self.recent_goal_memory)
         self.goal_failures: dict[Tuple[int, int], int] = {}
         self.active_goal: Optional[FrontierCandidate] = None
         self.active_goal_start = None
+        self.no_path_cycles = 0
+        self.last_costmap_clear_time = None
 
         self.tf_buffer = Buffer(cache_time=Duration(seconds=5.0))
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -112,6 +118,8 @@ class FrontierExplorerV2(Node):
 
         if best is None:
             self.get_logger().warn("No path-feasible frontier candidate found.")
+            self.no_path_cycles += 1
+            self._maybe_recover_from_no_path()
             return
 
         goal = self._make_goal_pose(best.x, best.y)
@@ -119,6 +127,32 @@ class FrontierExplorerV2(Node):
         self.navigator.goToPose(goal)
         self.active_goal = best
         self.active_goal_start = self.get_clock().now()
+        self.no_path_cycles = 0
+
+    def _maybe_recover_from_no_path(self) -> None:
+        if self.navigator is None:
+            return
+        if self.no_path_cycles < self.no_path_recovery_cycles:
+            return
+
+        now = self.get_clock().now()
+        if self.last_costmap_clear_time is not None:
+            elapsed = (now - self.last_costmap_clear_time).nanoseconds / 1e9
+            if elapsed < self.costmap_clear_cooldown_sec:
+                return
+
+        self.get_logger().warn(
+            f"No-path persisted for {self.no_path_cycles} cycles; clearing costmaps for recovery."
+        )
+        try:
+            self.navigator.clearAllCostmaps()
+            # Let previously failed regions be reconsidered after environment refresh.
+            self.goal_failures.clear()
+            self.recent_goals.clear()
+            self.last_costmap_clear_time = now
+            self.no_path_cycles = 0
+        except Exception as exc:
+            self.get_logger().warn(f"Costmap recovery failed: {exc}")
 
     def _monitor_active_goal(self) -> None:
         assert self.navigator is not None
