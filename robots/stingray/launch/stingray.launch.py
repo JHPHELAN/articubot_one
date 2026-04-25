@@ -1,3 +1,5 @@
+import os
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, LogInfo
 from launch.conditions import IfCondition, UnlessCondition
@@ -46,9 +48,9 @@ def generate_launch_description():
     # For slam_toolbox mapping mode: map is ignored by the slam_toolbox wrapper.
     # Override from CLI:
     #   ros2 launch articubot_one stingray.launch.py localizer_type:=amcl map:=/full/path/to/map.yaml
-    default_map_file = PathJoinSubstitution([
-        FindPackageShare(package_name), 'assets', 'maps', 'Stormy_SE_study_20260425_131819.yaml'
-    ])
+    default_map_file = os.path.join(
+        get_package_share_directory(package_name), 'assets', 'maps', 'Stormy_SE_study_20260425_131819.yaml'
+    )
     map_file = LaunchConfiguration('map', default=default_map_file)
 
     localizers_include = include_launch(
@@ -167,7 +169,7 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'map',
-            default_value=default_map_file,
+            default_value=default_map_file,  # plain string, resolved at load time
             description='Map path for amcl/map_server (.yaml). Override with map:=/full/path/map.yaml when needed.'
         ),
 
