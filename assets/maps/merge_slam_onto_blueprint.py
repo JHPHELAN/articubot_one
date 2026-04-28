@@ -17,18 +17,21 @@ Usage:
 
 import sys
 import yaml
+import argparse
 import numpy as np
 from PIL import Image
 
 # ── Parse arguments ────────────────────────────────────────────
-if len(sys.argv) < 2 or len(sys.argv) > 3:
-    print(f"Usage: {sys.argv[0]} <slam_map_name> [base_map_name]")
-    print(f"  e.g.: {sys.argv[0]} Stormy_v08")
-    print(f"  e.g.: {sys.argv[0]} Stormy_v09 Stormy_merged_v08")
-    sys.exit(1)
+parser = argparse.ArgumentParser(description="Merge SLAM obstacles onto a base map.")
+parser.add_argument("slam_name", help="Name of the SLAM map (e.g. Stormy_v08)")
+parser.add_argument("base_name", nargs="?", default=None, help="Name of base map")
+parser.add_argument("--dx", type=float, default=0.0, help="Fine-tune X offset in meters (positive moves SLAM East)")
+parser.add_argument("--dy", type=float, default=0.0, help="Fine-tune Y offset in meters (positive moves SLAM North)")
+parser.add_argument("--dtheta", type=float, default=0.0, help="Fine-tune CCW rotation in degrees")
+args = parser.parse_args()
 
-slam_name = sys.argv[1]
-base_name = sys.argv[2] if len(sys.argv) == 3 else None
+slam_name = args.slam_name
+base_name = args.base_name
 MAPS_DIR = '/home/ubuntu/robot_ws/src/articubot_one/assets/maps'
 
 # ── Configuration ──────────────────────────────────────────────
@@ -77,6 +80,11 @@ print(f"  Blueprint: {bp_w} x {bp_h}")
 
 print("Loading SLAM map...")
 slam_img = Image.open(SLAM_PGM)
+
+if args.dtheta != 0.0:
+    print(f"  Rotating SLAM map by {args.dtheta} degrees")
+    slam_img = slam_img.rotate(args.dtheta, resample=Image.NEAREST, center=(slam_img.width/2, slam_img.height/2), fillcolor=205)
+
 slam = np.array(slam_img)
 slam_h, slam_w = slam.shape
 print(f"  SLAM: {slam_w} x {slam_h}")
@@ -116,8 +124,8 @@ for sr in range(slam_h):
             continue  # not an obstacle in SLAM
 
         # Convert SLAM pixel to map coords
-        map_x = SLAM_ORIGIN[0] + sc * RESOLUTION
-        map_y = SLAM_ORIGIN[1] + (slam_h - 1 - sr) * RESOLUTION
+        map_x = SLAM_ORIGIN[0] + sc * RESOLUTION + args.dx
+        map_y = SLAM_ORIGIN[1] + (slam_h - 1 - sr) * RESOLUTION + args.dy
 
         # Convert map coords to blueprint pixel
         # Standard Nav2 PGM formula (same as SLAM)

@@ -49,7 +49,7 @@ def generate_launch_description():
     # Override from CLI:
     #   ros2 launch articubot_one stingray.launch.py localizer_type:=amcl map:=/full/path/to/map.yaml
     default_map_file = os.path.join(
-        get_package_share_directory(package_name), 'assets', 'maps', 'Stormy_house_merged_20260426_080607.yaml'
+        get_package_share_directory(package_name), 'assets', 'maps', 'Stormy_merged.yaml'
     )
     map_file = LaunchConfiguration('map', default=default_map_file)
 

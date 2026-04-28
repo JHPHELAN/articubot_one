@@ -1,7 +1,7 @@
 <!--
   Custom BT for Stingray: same as navigate_to_pose_w_replanning_and_recovery.xml
   but with Spin removed from recovery actions (deadly in doorways).
-  Recovery sequence: ClearCostmaps → BackUp → Wait → BackUp
+  Recovery sequence: ClearCostmaps → Wait → BackUp
 -->
 <root BTCPP_format="4" main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
@@ -38,9 +38,8 @@
               <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
               <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
             </Sequence>
-            <BackUp backup_dist="0.15" backup_speed="0.15" error_code_id="{backup_code_id}"/>
             <Wait wait_duration="5.0"/>
-            <BackUp backup_dist="0.10" backup_speed="0.10" error_code_id="{backup_code_id}"/>
+            <BackUp backup_dist="0.30" backup_speed="-0.05"/>
           </RoundRobin>
         </ReactiveFallback>
       </Sequence>
