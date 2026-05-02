@@ -75,19 +75,47 @@ def generate_launch_description():
         }
     )
 
+    oakd_config = PathJoinSubstitution([
+        FindPackageShare(package_name),
+        'robots', robot_model, 'config', 'oakd_nav_slim.yaml'
+    ])
+
     # OAK-D camera driver (DepthAI ROS driver) publishes image topics.
     oakd_launch = include_launch(
         package_name,
         ['launch', 'oakd.launch.py'],
         {
             'namespace': namespace,
-            'parent_frame': 'oakd_front_panel'
+            'parent_frame': 'oakd_front_panel',
+            'params_file': oakd_config,
+            'enable_color': 'false',
+            'rectify_rgb': 'false'
         }
+    )
+
+    oak_scan_node = Node(
+        package='depthimage_to_laserscan',
+        executable='depthimage_to_laserscan_node',
+        name='oak_depth_to_scan',
+        namespace=namespace,
+        output='screen',
+        parameters=[{
+            'scan_height': 1,
+            'range_min': 0.05,
+            'range_max': 4.0,
+            'output_frame': 'oakd_front_panel',
+        }],
+        remappings=[
+            ('depth', '/oak/stereo/image_raw'),
+            ('depth_camera_info', '/oak/stereo/camera_info'),
+            ('scan', '/oak/scan'),
+        ]
     )
 
     return LaunchDescription([
         ldlidar_node,
         bno085_driver_node,
         ekf_imu_odom,
-        #oakd_launch
+        oakd_launch,
+        oak_scan_node,
     ])
