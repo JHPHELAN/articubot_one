@@ -2,4 +2,16 @@
 .vscode
 /build
 *.pyc
+
+# Map scratch files - timestamped checkpoints, probes, emergency saves
+assets/maps/Stormy_ckpt_*
+assets/maps/Stormy_snapshot_*
+assets/maps/Stormy_south_probe*
+assets/maps/Stormy_emergency_*
+assets/maps/Stormy_v*.pgm
+assets/maps/Stormy_v*.yaml
+assets/maps/Stormy_merged_v*.pgm
+assets/maps/Stormy_merged_v*.png
+assets/maps/Stormy_merged_v*.yaml
+assets/maps/archive_bad/
 /robots/stingray/OBSOLETE/
