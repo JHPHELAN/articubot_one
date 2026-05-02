@@ -1,0 +1,28 @@
+# OAK-D minimal config for navigation use only.
+# Goal: publish a single depth pointcloud and nothing else, so Nav2 can use it
+# as an obstacle source for low/high obstacles invisible to the LD19 lidar.
+#
+# Disabled: RGB topics, neural network, OAK-D IMU (BNO085 is the IMU of record).
+# Reduced: stereo resolution and FPS to keep Pi 5 CPU and USB bandwidth happy.
+/oak:
+  ros__parameters:
+    camera:
+      i_pipeline_type: RGBD         # RGBD reliably publishes depth; RGB suppressed via launch arg enable_color:=false
+      i_nn_type: none
+      i_enable_imu: false
+      i_enable_ir: true             # IR projector helps depth on plain surfaces
+    imu:
+      i_publish_topic: false
+    left:
+      i_publish_topic: false
+    right:
+      i_publish_topic: false
+    stereo:
+      i_align_depth: false
+      i_subpixel: false
+      i_publish_topic: true         # depth image at /oak/stereo/image_raw
+      i_low_bandwidth: false        # raw is cheaper on CPU than host-side encoding
+      i_resolution: '400P'
+      i_fps: 5.0
+      i_left_rect_publish_topic: false
+      i_right_rect_publish_topic: false
