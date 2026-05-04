@@ -30,8 +30,8 @@ class AnchorDisplay(Node):
             {"id": 5, "name": "dining", "x": 6.61, "y": 0.432, "yaw": 0.0},
             {"id": 6, "name": "kitchen", "x": 11.0, "y": 0.877, "yaw": 0.0},
             {"id": 7, "name": "island", "x": 13.2, "y": -2.21, "yaw": 0.0},
-            {"id": 8, "name": "living", "x": 15.8, "y": 0.0, "yaw": 0.0},
-            {"id": 9, "name": "master", "x": 20.7, "y": 0.0, "yaw": -math.pi/2.0},
+            {"id": 8, "name": "living", "x": 15.4, "y": -0.475, "yaw": 0.0},
+            {"id": 9, "name": "master", "x": 19.4, "y": -0.491, "yaw": -math.pi/2.0},
             {"id": 10, "name": "bathroom", "x": 17.2, "y": -5.72, "yaw": math.pi},
             {"id": 11, "name": "closet", "x": 11.9, "y": -5.5, "yaw": math.pi}
         ]

@@ -88,8 +88,9 @@ def generate_launch_description():
             'namespace': namespace,
             'parent_frame': 'oakd_front_panel',
             'params_file': oakd_config,
-            'enable_color': 'false',
-            'rectify_rgb': 'false'
+            'enable_color': 'true',
+            'rectify_rgb': 'true',
+            'pointcloud.enable': 'true'
         }
     )
 

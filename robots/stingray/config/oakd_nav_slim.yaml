@@ -17,8 +17,14 @@
       i_publish_topic: false
     right:
       i_publish_topic: false
+    rgb:
+      i_publish_topic: true
+      i_low_bandwidth: true         # camera publishes JPEG-compressed frames; CPU near zero
+      i_low_bandwidth_quality: 50   # 50 is fine for monitoring
+      i_resolution: '720P'
+      i_fps: 5.0
     stereo:
-      i_align_depth: false
+      i_align_depth: true           # depth in RGB frame; silences frame-id warning
       i_subpixel: false
       i_publish_topic: true         # depth image at /oak/stereo/image_raw
       i_low_bandwidth: false        # raw is cheaper on CPU than host-side encoding
