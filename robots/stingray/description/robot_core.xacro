@@ -51,7 +51,7 @@
                 <!-- box size="${chassis_length} ${chassis_width} ${chassis_height}"/ -->
                 <!-- mesh filename="package://stingray/assets/meshes/Stingray.stl" scale="0.001 0.001 0.001"/-->
                 <!-- mesh filename="/home/ubuntu/stingray_ws/src/stingray/assets/meshes/Stingray.stl" scale="0.001 0.001 0.001"/-->
-                <mesh filename="file://$(find articubot_one)/assets/meshes/Stingray.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://articubot_one/assets/meshes/Stingray.stl" scale="0.001 0.001 0.001"/>
             </geometry>
             <material name="body_gray"/>
         </visual>
@@ -59,7 +59,7 @@
              <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
             <geometry>
                 <!-- box size="${chassis_length} ${chassis_width} ${chassis_height}"/ -->
-                <mesh filename="file://$(find articubot_one)/assets/meshes/Stingray.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://articubot_one/assets/meshes/Stingray.stl" scale="0.001 0.001 0.001"/>
                 <!-- mesh filename="/home/ubuntu/stingray_ws/src/stingray/assets/meshes/Stingray.stl" scale="0.001 0.001 0.001"/-->
                 <!-- mesh filename="file://home/ubuntu/stingray_ws/src/stingray/assets/meshes/Stingray.stl" scale="0.001 0.001 0.001"/-->
             </geometry>
