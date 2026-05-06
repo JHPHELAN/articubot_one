@@ -36,7 +36,9 @@ AI dialog:
       which line(s)
       before/after changes
 Additional skills information available at:
-/home/ubuntu/.copilot/skills
+  /home/ubuntu/.copilot/skills
+Additional ROS2 robotics wisdom is available at:
+  https://wimblerobotics.github.io/
 
 Hardware preflight (known-good as of 2026-04-24):
   Confirm no stale stack:

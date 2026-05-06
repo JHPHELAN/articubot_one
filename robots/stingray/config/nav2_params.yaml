@@ -77,7 +77,8 @@ controller_server:
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
       required_movement_radius: 0.25 # Was 0.5. Lower so slow progress through tight passages counts.
-      movement_time_allowance: 20.0 # Was 10.0. More patience for doorway negotiation before declaring stuck.
+      movement_time_allowance: 8.0 # 2026-05-05: was 20.0. Abort & retry sooner when actually pinned (e.g. wheel against shoe).
+
     # Goal checker parameters
     #precise_goal_checker:
     #  plugin: "nav2_controller::SimpleGoalChecker"
@@ -105,7 +106,7 @@ controller_server:
       vy_std: 0.0 # Default: 0.2 Should be 0.0 when lateral movement is not possible?
       wz_std: 0.2 # Was 0.4. Reduced to default — more straight trajectory samples, fewer wild curves into walls.
       vx_max: 0.2
-      vx_min: -0.1  # Allow reverse for tight recovery maneuvers.
+      vx_min: -0.15  # 2026-05-05: -0.1->-0.15. More reverse range so MPPI can sample meaningful backward trajectories.
       vy_max: 0.0 # Default: 0.5 Should be 0.0 when lateral movement is not possible?
       wz_max: 0.25  # Was 0.5 - lower angular momentum so robot doesn't coast past target heading
       iteration_count: 1
@@ -177,7 +178,7 @@ controller_server:
       PreferForwardCritic: # forward motion. Encourages the robot to drive forward.
         enabled: true
         cost_power: 1
-        cost_weight: 5.0
+        cost_weight: 2.0 # 2026-05-05: 5.0->2.0. Was dominating; blocked reverse-to-goal even when shorter.
         threshold_to_consider: 0.5 # meters. When to stop caring about forward motion to allow any adjustments needed for final positioning
       TwirlingCritic: # smooth rotation. Prevent unnecessary dancing and spinning.
         enabled: true
@@ -244,7 +245,7 @@ local_costmap:
           data_type: "LaserScan"
           raytrace_max_range: 4.0
           raytrace_min_range: 0.05
-          obstacle_max_range: 4.0
+          obstacle_max_range: 2.0 # 2026-05-05: 4.0->2.0. Stereo false-horizon ghosts beyond ~2m.
           obstacle_min_range: 0.05
 
         oak_points:
@@ -256,7 +257,7 @@ local_costmap:
           max_obstacle_height: 0.50   # catch shoes, cables, table legs; lidar handles taller stuff
           raytrace_max_range: 3.0
           raytrace_min_range: 0.20
-          obstacle_max_range: 2.5
+          obstacle_max_range: 2.0 # 2026-05-05: 2.5->2.0. Stereo noise grows ~r^2; ghosts behind walls beyond 2m.
           obstacle_min_range: 0.20
           expected_update_rate: 0.0   # do not invalidate during brief depth dropouts
 
@@ -271,7 +272,8 @@ local_costmap:
         # see http://wiki.ros.org/costmap_2d/hydro/inflation
         # See https://chatgpt.com/s/t_692127cb69908191b67ce0e1df8d9646
         inflation_radius: 0.30  # >= circumscribed 0.2915. Trade narrower doorway center for not clipping wheels on shoes/legs.
-        cost_scaling_factor: 3.0  # Reverted; scaling shape matters less when center is actually free.
+        cost_scaling_factor: 2.0  # 2026-05-05: 3.0->2.0. Gentler decay biases planner to centerline; reduces wall-hugging into blind corners.
+
         inflate_unknown: false # Unknown cells will not be inflated as if they were lethal obstacles.
         inflate_around_unknown: false # will not inflate costs around unknown cells.
 
@@ -285,8 +287,9 @@ global_costmap:
       unknown_cost_value: 255 # slightly less than 255 to be more explorative, 0 - to prohibit planning into un-scanned space
       #lethal_cost_threshold: 100
       #Added above to improve slam exploration
-      update_frequency: 1.0 # Reduced from 5.0 to lower global planning load.
-      publish_frequency: 1.0 # Reduced from 3.0 to default for stable, lighter global updates.
+      update_frequency: 2.0 # 2026-05-05: 1.0->2.0. Faster global replan picks up new obstacles around bends.
+      publish_frequency: 2.0 # 2026-05-05: 1.0->2.0. Match update rate.
+
       global_frame: map
       robot_base_frame: base_link
 
@@ -327,7 +330,7 @@ global_costmap:
           data_type: "LaserScan"
           raytrace_max_range: 4.0
           raytrace_min_range: 0.05
-          obstacle_max_range: 4.0
+          obstacle_max_range: 2.0 # 2026-05-05: 4.0->2.0. Match local; stereo false-horizon ghosts beyond ~2m.
           obstacle_min_range: 0.05
 
         oak_points:
@@ -339,7 +342,7 @@ global_costmap:
           max_obstacle_height: 0.50
           raytrace_max_range: 3.0
           raytrace_min_range: 0.20
-          obstacle_max_range: 2.5
+          obstacle_max_range: 2.0 # 2026-05-05: 2.5->2.0. Match local; trust OAK only where stereo is reliable.
           obstacle_min_range: 0.20
           expected_update_rate: 0.0
 
@@ -348,8 +351,9 @@ global_costmap:
         enabled: true
         # See http://wiki.ros.org/costmap_2d/hydro/inflation
         #     https://chatgpt.com/s/t_692127cb69908191b67ce0e1df8d9646
-        cost_scaling_factor: 3.0 # Match local costmap.
+        cost_scaling_factor: 2.0 # 2026-05-05: 3.0->2.0. Match local costmap; gentler decay for centerline bias.
         inflation_radius: 0.30  # Match local costmap; >= circumscribed 0.2915.
+
         inflate_unknown: false # Unknown cells will not be inflated as if they were lethal obstacles.
         inflate_around_unknown: false # will not inflate costs around unknown cells.
 
