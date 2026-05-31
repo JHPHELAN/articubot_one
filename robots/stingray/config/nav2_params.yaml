@@ -140,7 +140,13 @@ controller_server:
         # Comment it out if using "robot_radius", not "footprint" in costmaps below:
         consider_footprint: true
         collision_cost: 1000000.0
-        near_goal_distance: 1.0 # when the robot can get a bit closer to obstacles while trying to reach its final destination.
+        # 2026-05-17: Reverted to 1.0 after experiment with 0.3. At 0.3 MPPI became
+        # hesitant in open spaces because every trajectory near any goal was penalized by
+        # inflation costs; at 1.0 he commits to the goal but may cozy up to walls near
+        # arrival. We accept the cozying as a known trade-off pending a better fix
+        # (e.g. raising CostCritic weight or pulling exploration goals back from frontier
+        # centroid). DO NOT lower again without a paired controller-side compensation.
+        near_goal_distance: 1.0
         trajectory_point_step: 2
       GoalCritic: # getting to destination
         enabled: true
@@ -178,7 +184,7 @@ controller_server:
       PreferForwardCritic: # forward motion. Encourages the robot to drive forward.
         enabled: true
         cost_power: 1
-        cost_weight: 2.0 # 2026-05-05: 5.0->2.0. Was dominating; blocked reverse-to-goal even when shorter.
+        cost_weight: 4.0 # 2026-05-08: 2.0->4.0. 2.0 was too permissive (backed across the house). 4.0 still allows close-range reverse.
         threshold_to_consider: 0.5 # meters. When to stop caring about forward motion to allow any adjustments needed for final positioning
       TwirlingCritic: # smooth rotation. Prevent unnecessary dancing and spinning.
         enabled: true
@@ -208,9 +214,18 @@ local_costmap:
       transform_tolerance: 0.5  # delay in transform (tf) data that is tolerable in seconds
 
       # Define either robot_radius or footprint. See "consider_footprint" in controller above.:
-      footprint: "[[-0.24, -0.14], [-0.24, 0.14], [0.10, 0.14], [0.10, -0.14]]"
+      # 2026-05-18: rectangle replaced with stingray polygon (CCW, base_link frame, x fwd / y left). True hull incl. OAK-D bow and rear omni wheel.
+      footprint: "[[0.123, 0.06], [0.06, 0.145], [-0.065, 0.145], [-0.237, 0.03], [-0.237, -0.03], [-0.065, -0.145], [0.06, -0.145], [0.123, -0.06]]"
 
       plugins: ["voxel_layer", "denoise_layer", "inflation_layer"] # order matters here. “static_layer” is not needed for the local costmap.
+      # 2026-05-17: KeepoutFilter re-enabled now that costmap_filter_info_server is launched
+      # via `keepout` alias (ros2 launch articubot_one keepout.launch.py).
+      filters: ["keepout_filter"]
+
+      keepout_filter:
+        plugin: "nav2_costmap_2d::KeepoutFilter"
+        enabled: true
+        filter_info_topic: "/costmap_filter_info"
 
       voxel_layer:
         # -- Using voxel layer, as in original example:
@@ -224,7 +239,7 @@ local_costmap:
         # -- Option: Using obstacle layer, as in global costmap:
         # plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        observation_sources: scan oak_scan oak_points
+        observation_sources: scan oak_points  # 2026-05-07: removed oak_scan (redundant with oak_points; saved CPU)
 
         scan:
           topic: "/scan" # must have the / prefix
@@ -237,24 +252,25 @@ local_costmap:
           obstacle_max_range: 3.0 # Half or more of maximum lidar data range
           obstacle_min_range: 0.1 # > 0.0 avoid that lidar detect robot elements as obstacle
 
-        oak_scan:
-          topic: "/oak/scan"
-          max_obstacle_height: 1.0
-          clearing: True
-          marking: True
-          data_type: "LaserScan"
-          raytrace_max_range: 4.0
-          raytrace_min_range: 0.05
-          obstacle_max_range: 2.0 # 2026-05-05: 4.0->2.0. Stereo false-horizon ghosts beyond ~2m.
-          obstacle_min_range: 0.05
+        # 2026-05-07: oak_scan disabled. Single 9cm horizontal slice was redundant with oak_points volumetric.
+        # oak_scan:
+        #   topic: "/oak/scan"
+        #   max_obstacle_height: 1.0
+        #   clearing: True
+        #   marking: True
+        #   data_type: "LaserScan"
+        #   raytrace_max_range: 4.0
+        #   raytrace_min_range: 0.05
+        #   obstacle_max_range: 2.0
+        #   obstacle_min_range: 0.05
 
         oak_points:
           topic: "/oak/points"
           data_type: "PointCloud2"
           marking: True
           clearing: True
-          min_obstacle_height: 0.03   # ignore floor (and rug-induced tilt artifacts)
-          max_obstacle_height: 0.50   # catch shoes, cables, table legs; lidar handles taller stuff
+          min_obstacle_height: 0.02   # 2026-05-07: 0.03->0.02. Catch low-profile floor hazards.
+          max_obstacle_height: 0.22   # 2026-05-07: 0.50->0.22. Stormy clearance + 2cm; above this he doesn't care.
           raytrace_max_range: 3.0
           raytrace_min_range: 0.20
           obstacle_max_range: 2.0 # 2026-05-05: 2.5->2.0. Stereo noise grows ~r^2; ghosts behind walls beyond 2m.
@@ -264,15 +280,20 @@ local_costmap:
       denoise_layer:
         plugin: "nav2_costmap_2d::DenoiseLayer"
         enabled: true
-        minimal_group_size: 2
+        minimal_group_size: 1 # 2026-05-07: 2->1. Let sparse oak_points returns (e.g. coffee table crossbar) survive.
         group_connectivity_type: 8
 
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         # see http://wiki.ros.org/costmap_2d/hydro/inflation
         # See https://chatgpt.com/s/t_692127cb69908191b67ce0e1df8d9646
-        inflation_radius: 0.30  # >= circumscribed 0.2915. Trade narrower doorway center for not clipping wheels on shoes/legs.
-        cost_scaling_factor: 2.0  # 2026-05-05: 3.0->2.0. Gentler decay biases planner to centerline; reduces wall-hugging into blind corners.
+        # 2026-05-17 (PM): 0.55->0.50. Small step from 0.55 to test whether reduced halo
+        # overlap at doorways (0.76 m doorway: overlap drops from 0.34 m to 0.24 m at center)
+        # is enough to make Stormy willing to cross thresholds, while keeping most of the
+        # river-vs-gorge centerline bias in open corridors. Still ~0.21 m cushion past
+        # robot circumscribed (0.29 m).
+        inflation_radius: 0.50
+        cost_scaling_factor: 1.5  # Gentler exponential decay; soft slope in middle, sharp rise near walls.
 
         inflate_unknown: false # Unknown cells will not be inflated as if they were lethal obstacles.
         inflate_around_unknown: false # will not inflate costs around unknown cells.
@@ -294,11 +315,20 @@ global_costmap:
       robot_base_frame: base_link
 
       # Define either robot_radius or footprint. See "consider_footprint" in controller above.:
-      footprint: "[[-0.24, -0.14], [-0.24, 0.14], [0.10, 0.14], [0.10, -0.14]]"
+      # 2026-05-18: rectangle replaced with stingray polygon (CCW, base_link frame, x fwd / y left). True hull incl. OAK-D bow and rear omni wheel.
+      footprint: "[[0.123, 0.06], [0.06, 0.145], [-0.065, 0.145], [-0.237, 0.03], [-0.237, -0.03], [-0.065, -0.145], [0.06, -0.145], [0.123, -0.06]]"
 
       resolution: 0.05 # Default: 0.1
       track_unknown_space: true # Default: False. True to distinguish between free, occupied, and unknown space
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      # 2026-05-17: KeepoutFilter re-enabled now that costmap_filter_info_server is launched
+      # via `keepout` alias (ros2 launch articubot_one keepout.launch.py).
+      filters: ["keepout_filter"]
+
+      keepout_filter:
+        plugin: "nav2_costmap_2d::KeepoutFilter"
+        enabled: true
+        filter_info_topic: "/costmap_filter_info"
 
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
@@ -310,7 +340,7 @@ global_costmap:
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        observation_sources: scan oak_scan oak_points
+        observation_sources: scan oak_points  # 2026-05-07: removed oak_scan
         scan:
           topic: "/scan" # must have the / prefix
           max_obstacle_height: 1.0
@@ -322,24 +352,25 @@ global_costmap:
           obstacle_max_range: 3.0 # Quarter or more of maximum lidar data range
           obstacle_min_range: 0.1 # > 0.0 avoid that lidar detect robot elements as obstacle
 
-        oak_scan:
-          topic: "/oak/scan"
-          max_obstacle_height: 1.0
-          clearing: True
-          marking: True
-          data_type: "LaserScan"
-          raytrace_max_range: 4.0
-          raytrace_min_range: 0.05
-          obstacle_max_range: 2.0 # 2026-05-05: 4.0->2.0. Match local; stereo false-horizon ghosts beyond ~2m.
-          obstacle_min_range: 0.05
+        # 2026-05-07: oak_scan disabled.
+        # oak_scan:
+        #   topic: "/oak/scan"
+        #   max_obstacle_height: 1.0
+        #   clearing: True
+        #   marking: True
+        #   data_type: "LaserScan"
+        #   raytrace_max_range: 4.0
+        #   raytrace_min_range: 0.05
+        #   obstacle_max_range: 2.0
+        #   obstacle_min_range: 0.05
 
         oak_points:
           topic: "/oak/points"
           data_type: "PointCloud2"
           marking: True
           clearing: True
-          min_obstacle_height: 0.03
-          max_obstacle_height: 0.50
+          min_obstacle_height: 0.02   # 2026-05-07: match local.
+          max_obstacle_height: 0.22   # 2026-05-07: match local.
           raytrace_max_range: 3.0
           raytrace_min_range: 0.20
           obstacle_max_range: 2.0 # 2026-05-05: 2.5->2.0. Match local; trust OAK only where stereo is reliable.
@@ -351,8 +382,9 @@ global_costmap:
         enabled: true
         # See http://wiki.ros.org/costmap_2d/hydro/inflation
         #     https://chatgpt.com/s/t_692127cb69908191b67ce0e1df8d9646
-        cost_scaling_factor: 2.0 # 2026-05-05: 3.0->2.0. Match local costmap; gentler decay for centerline bias.
-        inflation_radius: 0.30  # Match local costmap; >= circumscribed 0.2915.
+        cost_scaling_factor: 1.5 # Match local costmap; gentler decay across inflated band.
+        # 2026-05-17 (PM): 0.55->0.50. Match local costmap; small step to test doorway crossing.
+        inflation_radius: 0.50
 
         inflate_unknown: false # Unknown cells will not be inflated as if they were lethal obstacles.
         inflate_around_unknown: false # will not inflate costs around unknown cells.
@@ -484,6 +516,7 @@ collision_monitor:
       time_before_collision: 1.2 # Default: 2.0  Increasing this value makes the robot more cautious but might make it stop unnecessarily far from obstacles.
       simulation_time_step: 0.1  # How often to check for collisions during the prediction. 
       min_points: 6
+      max_points: 1000  # Cosmetic: silence Nav2 1.3.11 "max_points not initialized" warning. Effectively unlimited.
       visualize: False
       enabled: True
     observation_sources: ["scan"] # scan, pointcloud, range or polygon - comma separated list
