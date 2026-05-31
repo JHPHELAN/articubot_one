@@ -29,6 +29,7 @@ install(
 install(PROGRAMS
   scripts/gps_waypoint_follower.py
   scripts/xy_waypoint_follower.py
+  scripts/indicators_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

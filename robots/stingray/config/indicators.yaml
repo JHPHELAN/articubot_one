@@ -1,0 +1,62 @@
+indicators_node:
+  ros__parameters:
+    # GPIO (BCM numbering)
+    headlights_pin: 17           # header pin 11
+    beacon_pin: 22               # header pin 15 (LED)
+    # empty_pin: 27              # header pin 13
+    headlights_active_low: false # direct IRLZ44N MOSFET
+    beacon_active_low: false     # direct IRLZ44N MOSFET
+
+    # LED blink pattern when beacon is active (seconds).
+    beacon_led_on_sec: 1.0       # LED turn-signal cadence
+    beacon_led_off_sec: 0.800
+
+    # Audio warning (replaces GPIO 22 piezo buzzer).
+    # Played via `aplay` through the USB audio dongle.
+    beacon_sound_path: "/home/ubuntu/wav/STORMY/klingon_alert.wav"
+    beacon_sound_repeat_sec: 3.6 # klingon_alert.wav length (two-tone clip); matches two LED cycles at 1.0/0.8
+    beacon_sound_device: ""      # empty = aplay default; e.g. "plughw:CARD=Device,DEV=0"
+
+    # Topics
+    joy_topic: "/joy"
+    cmd_vel_topic: "/cmd_vel"
+
+    # Joystick buttons (Xbox layout)
+    headlights_on_button: 0      # A (green)
+    headlights_off_button: 1     # B (red)
+    beacon_manual_button: 3      # Y (yellow)
+
+    # Motion detection
+    linear_threshold: 0.01       # m/s
+    angular_threshold: 0.05      # rad/s
+    beacon_linger_sec: 2.0       # keep beacon on this long after motion stops
+
+    # Boot "running light": headlights stay on this long after node start, then off.
+    # With the direct-MOSFET PCB, hardware default (Pi off, or before node starts) is
+    # bulbs OFF. The node turns them ON at start and back OFF after this delay so the
+    # robot has a brief visible "I'm awake" cue during boot.
+    # Set to 0.0 to skip the running-light behavior and start with bulbs OFF.
+    headlights_startup_on_sec: 3.0
+
+    # Nav2 trouble alert (plays danger.wav when Stormy is in trouble).
+    # Triggers on either: a NavigateToPose goal returning ABORTED, or a
+    # Behavior Tree recovery node entering RUNNING (Clear*Costmap / Wait /
+    # Spin / BackUp). Throttled by alert_min_interval_sec so a flood of
+    # recovery events does not spam the speaker. The alert clip preempts
+    # any currently-playing beacon clip and shares the same audio device.
+    alert_sound_path: "/home/ubuntu/wav/STORMY/danger.wav"
+    alert_sound_device: ""        # empty = follow beacon_sound_device
+    alert_min_interval_sec: 8.0   # cooldown between consecutive alerts
+    alert_on_goal_aborted: true   # play on NavigateToPose ABORTED
+    alert_on_recovery: true       # play on BT recovery node entering RUNNING
+    bt_log_topic: "/behavior_tree_log"
+    nav_status_topic: "/navigate_to_pose/_action/status"
+    alert_recovery_node_names:    # substring match against BT node_name
+      - "ClearEntireCostmap"
+      - "ClearLocalCostmap"
+      - "ClearGlobalCostmap"
+      - "Wait"
+      - "Spin"
+      - "BackUp"
+
+    mock_gpio: false             # set true for non-Pi test
