@@ -81,6 +81,8 @@ def generate_launch_description():
     ])
 
     # OAK-D camera driver (DepthAI ROS driver) publishes image topics.
+    # 2026-06-14: pointcloud re-enabled after fix (RGB->400P to match stereo,
+    # and switched to depth-only PointCloudXyzNode in oakd.launch.py).
     oakd_launch = include_launch(
         package_name,
         ['launch', 'oakd.launch.py'],

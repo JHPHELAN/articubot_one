@@ -39,7 +39,7 @@ def generate_launch_description():
 
     # See https://github.com/wimblerobotics/roboclaw_driver
     roboclaw_params_file = PathJoinSubstitution([
-        FindPackageShare('roboclaw_driver'), "config", "motor_driver.yaml"
+        FindPackageShare('articubot_one'), "robots", "stingray", "config", "roboclaw.yaml"
     ])
 
     # For real robot, include the RoboClaw driver:
