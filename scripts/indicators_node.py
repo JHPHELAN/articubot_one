@@ -22,11 +22,17 @@ Safety beacon (LED + audio warning):
     - LED: driven by IRLZ44N #2 on the indicators PCB. GPIO HIGH = LED on.
       (Replaces the earlier 2N3904 small-signal driver.)
     - Audio: a WAV is played via ``aplay`` through the USB audio dongle
-      every ``beacon_sound_repeat_sec`` seconds while the beacon is active.
+      every ``beacon_sound_repeat_sec`` seconds while the beacon is active
+      AND the sound enable toggle is on. The LED phase is re-anchored to
+      each ``aplay`` start so blink and audio stay synchronized.
       Replaces the old GPIO 22 piezo buzzer; GPIO 22 is now the LED line.
     - Auto-on when ``/cmd_vel`` shows commanded motion above a small
       threshold. Stays on for ``beacon_linger_sec`` after motion stops.
-    - Manual override via joystick button (default Y = button 3).
+    - Manual light toggle via joystick button (default Y = button 3).
+    - Manual sound enable toggle via separate joystick button
+      (default X = button 2, blue). When sound is disabled the lights
+      still flash silently. Default is sound DISABLED at startup; set
+      ``beacon_sound_default_on`` to true to restore the old behavior.
 
 Nav2 trouble alert:
     - Plays ``alert_sound_path`` (default danger.wav) when Nav2 reports
@@ -99,9 +105,11 @@ class IndicatorsNode(Node):
         self.declare_parameter('joy_topic', '/joy')
         self.declare_parameter('cmd_vel_topic', '/cmd_vel')
 
-        self.declare_parameter('headlights_on_button', 0)   # A
-        self.declare_parameter('headlights_off_button', 1)  # B
-        self.declare_parameter('beacon_manual_button', 3)   # Y
+        self.declare_parameter('headlights_on_button', 0)   # A (green)
+        self.declare_parameter('headlights_off_button', 1)  # B (red)
+        self.declare_parameter('beacon_manual_button', 3)   # Y (yellow) - lights only
+        self.declare_parameter('beacon_sound_button', 2)    # X (blue)   - sound only
+        self.declare_parameter('beacon_sound_default_on', False)
 
         self.declare_parameter('linear_threshold', 0.01)
         self.declare_parameter('angular_threshold', 0.05)
@@ -113,7 +121,7 @@ class IndicatorsNode(Node):
         # Nav2 trouble alert
         self.declare_parameter(
             'alert_sound_path',
-            '/home/ubuntu/wav/STORMY/danger.wav')
+            '/home/ubuntu/wav/danger.wav')
         self.declare_parameter('alert_sound_device', '')  # empty = follow beacon device
         self.declare_parameter('alert_min_interval_sec', 8.0)
         self.declare_parameter('alert_on_goal_aborted', True)
@@ -144,6 +152,8 @@ class IndicatorsNode(Node):
         self._btn_on = int(gp('headlights_on_button').value)
         self._btn_off = int(gp('headlights_off_button').value)
         self._btn_beacon = int(gp('beacon_manual_button').value)
+        self._btn_sound = int(gp('beacon_sound_button').value)
+        self._sound_enabled = bool(gp('beacon_sound_default_on').value)
 
         self._lin_thresh = float(gp('linear_threshold').value)
         self._ang_thresh = float(gp('angular_threshold').value)
@@ -272,6 +282,33 @@ class IndicatorsNode(Node):
                 f'Beacon manual override {"ON" if self._beacon_manual else "OFF"}'
             )
 
+        if pressed(self._btn_sound):
+            self._sound_enabled = not self._sound_enabled
+            self.get_logger().info(
+                f'Beacon sound {"ENABLED" if self._sound_enabled else "DISABLED"}'
+            )
+            if not self._sound_enabled:
+                # Stop any in-progress beacon clip immediately so the operator
+                # gets quiet on the next button press. Alert clips are left
+                # alone so Nav2 trouble notifications still get through.
+                if (self._sound_proc is not None
+                        and self._sound_kind == 'beacon'
+                        and self._sound_proc.poll() is None):
+                    try:
+                        self._sound_proc.terminate()
+                        try:
+                            self._sound_proc.wait(timeout=0.2)
+                        except Exception:
+                            self._sound_proc.kill()
+                    except Exception:
+                        pass
+                    self._sound_proc = None
+                    self._sound_kind = None
+            else:
+                # Force a fresh clip on the next tick instead of waiting out
+                # the throttle window from the previous enable cycle.
+                self._sound_last_start_time = None
+
     def _cmd_vel_cb(self, msg: TwistStamped) -> None:
         t = msg.twist
         moving = (abs(t.linear.x) > self._lin_thresh or
@@ -390,6 +427,8 @@ class IndicatorsNode(Node):
                 self._bn.off()
 
     def _maybe_play_sound(self, now) -> None:
+        if not self._sound_enabled:
+            return
         if self._aplay_path is None or not os.path.isfile(self._sound_path):
             return
         # Don't overlap: skip if previous clip is still playing.

@@ -13,8 +13,8 @@ indicators_node:
 
     # Audio warning (replaces GPIO 22 piezo buzzer).
     # Played via `aplay` through the USB audio dongle.
-    beacon_sound_path: "/home/ubuntu/wav/STORMY/klingon_alert.wav"
-    beacon_sound_repeat_sec: 3.6 # klingon_alert.wav length (two-tone clip); matches two LED cycles at 1.0/0.8
+    beacon_sound_path: "/home/ubuntu/wav/klingon_alert_LOUD.wav"
+    beacon_sound_repeat_sec: 3.6 # klingon_alert_LOUD.wav length (two-tone clip); matches two LED cycles at 1.0/0.8
     beacon_sound_device: ""      # empty = aplay default; e.g. "plughw:CARD=Device,DEV=0"
 
     # Topics
@@ -24,7 +24,9 @@ indicators_node:
     # Joystick buttons (Xbox layout)
     headlights_on_button: 0      # A (green)
     headlights_off_button: 1     # B (red)
-    beacon_manual_button: 3      # Y (yellow)
+    beacon_manual_button: 3      # Y (yellow) - toggles flashing lights only
+    beacon_sound_button: 2       # X (blue)   - toggles beacon sound enable
+    beacon_sound_default_on: false  # start with beacon sound muted
 
     # Motion detection
     linear_threshold: 0.01       # m/s
@@ -44,7 +46,7 @@ indicators_node:
     # Spin / BackUp). Throttled by alert_min_interval_sec so a flood of
     # recovery events does not spam the speaker. The alert clip preempts
     # any currently-playing beacon clip and shares the same audio device.
-    alert_sound_path: "/home/ubuntu/wav/STORMY/danger.wav"
+    alert_sound_path: "/home/ubuntu/wav/danger.wav"
     alert_sound_device: ""        # empty = follow beacon_sound_device
     alert_min_interval_sec: 8.0   # cooldown between consecutive alerts
     alert_on_goal_aborted: true   # play on NavigateToPose ABORTED
