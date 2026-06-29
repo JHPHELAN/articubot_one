@@ -1,0 +1,10 @@
+frontier_explorer_v2:
+  ros__parameters:
+    # Known-good tuning as of 2026-06-29 (was the `explore` alias overrides).
+    # Anything not listed here keeps the script's documented defaults.
+    dry_run: false
+    min_clearance_m: 0.25
+    path_clearance_max_cost: 98
+    goal_max_cost: 98
+    failures_before_blacklist: 3
+    blacklist_radius_m: 0.4

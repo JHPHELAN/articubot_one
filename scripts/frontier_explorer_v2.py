@@ -704,6 +704,16 @@ def main() -> None:
     except KeyboardInterrupt:
         pass
     finally:
+        # 2026-06-27: Cancel any in-flight Nav2 goal on shutdown so the BT
+        # doesn't keep running its recovery sequence (ClearCostmaps -> Wait ->
+        # BackUp x6) on a goal nobody is monitoring anymore. Without this, Ctrl-C
+        # leaves Stormy struggling for minutes until a `dock` command preempts.
+        try:
+            if node.navigator is not None and node.active_goal is not None:
+                node.get_logger().info("Shutdown: canceling active Nav2 goal.")
+                node.navigator.cancelTask()
+        except Exception:
+            pass
         node.destroy_node()
         if rclpy.ok():
             rclpy.shutdown()
