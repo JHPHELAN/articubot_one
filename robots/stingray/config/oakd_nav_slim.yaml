@@ -21,8 +21,13 @@
       i_publish_topic: true
       i_low_bandwidth: true         # camera publishes JPEG-compressed frames; CPU near zero
       i_low_bandwidth_quality: 50   # 50 is fine for monitoring
-      i_resolution: '720P'
+      # 2026-06-14: dropped 720P->400P to match stereo res; lower latency for tele-nav,
+      # and avoids the RGB(720)/depth(400) dim mismatch that crashed point_cloud_xyzrgb_node.
+      i_resolution: '400P'
       i_fps: 5.0
+      # Keep DepthAI device clock aligned with ROS time so message stamps
+      # don't drift past the TF cache ("earlier than all data in transform cache").
+      i_update_ros_base_time_on_ros_msg: true
     stereo:
       i_align_depth: true           # depth in RGB frame; silences frame-id warning
       i_subpixel: false
@@ -32,3 +37,11 @@
       i_fps: 5.0
       i_left_rect_publish_topic: false
       i_right_rect_publish_topic: false
+      i_update_ros_base_time_on_ros_msg: true
+      # 2026-06-14: cap depth at the source (~3 m). Stereo noise grows as r^2;
+      # beyond ~3 m we get ghosts. Nav2 already truncates to 2 m for the
+      # obstacle layer, but Rviz shows the raw cloud — this caps both.
+      # Units: millimetres (DepthAI convention).
+      i_enable_threshold_filter: true
+      i_threshold_filter_min_range: 200    # 0.20 m, matches obstacle_min_range
+      i_threshold_filter_max_range: 3000   # 3.00 m

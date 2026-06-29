@@ -1,8 +1,8 @@
 #
-# See  share/depthai_ros_driver/launch/camera.launch.py
+# See  share/depthai_ros_driver_v3/launch/driver.launch.py
 #      https://github.com/slgrobotics/robots_bringup/blob/main/Docs/Sensors/OAK-D_Lite.md
 #
-#   meld ~/robot_ws/src/articubot_one/launch/oakd.launch.py /opt/ros/jazzy/share/depthai_ros_driver/launch/camera.launch.py
+#   meld ~/robot_ws/src/articubot_one/launch/oakd.launch.py /opt/ros/jazzy/share/depthai_ros_driver_v3/launch/driver.launch.py
 #
 
 from ament_index_python.packages import get_package_share_directory
@@ -48,7 +48,7 @@ def launch_setup(context, *args, **kwargs):
     if context.environment.get("DEPTHAI_DEBUG") == "1":
         log_level = "debug"
 
-    urdf_launch_dir = PathJoinSubstitution([FindPackageShare('depthai_descriptions'), 'launch'])
+    urdf_launch_dir = PathJoinSubstitution([FindPackageShare('depthai_descriptions_v3'), 'launch'])
 
     parent_frame = LaunchConfiguration(
         "parent_frame", default="oak-d-base-frame"
@@ -87,12 +87,10 @@ def launch_setup(context, *args, **kwargs):
     color_sens_name = "rgb"
     stereo_sens_name = "stereo"
     points_topic_name = f"{name}/points"
-    if pointcloud_enable.perform(context) == "true":
-        parameter_overrides = {
-            "pipeline_gen": {"i_enable_sync": True},
-            "rgb": {"i_synced": True},
-            "stereo": {"i_synced": True},
-        }
+    # 2026-06-14: Do NOT force RGB/stereo sync when pointcloud is enabled.
+    # PointCloudXyzNode only subscribes to depth+camera_info, so sync is
+    # unneeded. Forcing sync with mismatched RGB/stereo configs was causing
+    # the depthai v3 driver to SIGSEGV right after "Driver ready!".
     depth_topic_suffix = "image_raw"
     if rs_compat.perform(context) == "true":
         depth_topic_suffix = "image_rect_raw"
@@ -165,8 +163,11 @@ def launch_setup(context, *args, **kwargs):
         cam_model = ""
         if override_cam_model.perform(context) == "true":
             cam_model = camera_model.perform(context)
+        # 2026-06-14: depthai_ros_driver_v3 namespaces TF params under 'driver.*'
+        # (not 'camera.*' as in older v2 / driver.launch.py reference). Verified
+        # via `ros2 param list /oak | grep tf` against the running driver.
         tf_params = {
-            "camera": {
+            "driver": {
                 "i_publish_tf_from_calibration": True,
                 "i_tf_tf_prefix": name,
                 "i_tf_camera_model": cam_model,
@@ -181,6 +182,15 @@ def launch_setup(context, *args, **kwargs):
                 "i_tf_imu_from_descr": imu_from_descr.perform(context),
             }
         }
+    else:
+        # 2026-06-14: when we DON'T publish TF from calibration, we still must
+        # disable it explicitly. The driver's built-in default is to auto-publish
+        # its own URDF with parent_frame='oak_parent_frame' (we saw "[oak]: Published URDF"
+        # in the log + a stale 'oak -> oak_parent_frame' branch in /tf_static that
+        # competed with oak_state_publisher's correct 'oak -> oakd_front_panel' branch,
+        # producing a split TF tree and Message Filter drops.
+        # NB: parameter namespace is 'driver.*' for v3 (see comment above).
+        tf_params = {"driver": {"i_publish_tf_from_calibration": False}}
 
     launch_prefix = setup_launch_prefix(context)
 
@@ -198,20 +208,25 @@ def launch_setup(context, *args, **kwargs):
                 PathJoinSubstitution([urdf_launch_dir, 'urdf_launch.py'])
             ),
             launch_arguments={
+                # 2026-06-14: resolve every value to a plain string here. When this
+                # dict mixed Substitutions (LaunchConfiguration) and strings, urdf_launch
+                # silently fell back to its defaults (use_base_descr=true equivalent
+                # behavior, parent_frame=oak_parent_frame), which loaded base_descr.urdf.xacro
+                # and orphaned oak_rgb_camera_optical_frame from the rest of the TF tree.
                 "namespace": namespace,
                 "tf_prefix": name,
-                "camera_model": camera_model,
+                "camera_model": camera_model.perform(context),
                 "base_frame": name,
                 "parent_frame": parent_frame,
-                "cam_pos_x": cam_pos_x,
-                "cam_pos_y": cam_pos_y,
-                "cam_pos_z": cam_pos_z,
-                "cam_roll": cam_roll,
-                "cam_pitch": cam_pitch,
-                "cam_yaw": cam_yaw,
-                "use_composition": use_composition,
-                "use_base_descr": publish_tf_from_calibration,
-                "rs_compat": rs_compat,
+                "cam_pos_x": cam_pos_x.perform(context),
+                "cam_pos_y": cam_pos_y.perform(context),
+                "cam_pos_z": cam_pos_z.perform(context),
+                "cam_roll": cam_roll.perform(context),
+                "cam_pitch": cam_pitch.perform(context),
+                "cam_yaw": cam_yaw.perform(context),
+                "use_composition": use_composition.perform(context),
+                "use_base_descr": publish_tf_from_calibration.perform(context),
+                "rs_compat": rs_compat.perform(context),
             }.items(),
         ),
         ComposableNodeContainer(
@@ -221,8 +236,8 @@ def launch_setup(context, *args, **kwargs):
             executable="component_container",
             composable_node_descriptions=[
                 ComposableNode(
-                    package="depthai_ros_driver",
-                    plugin="depthai_ros_driver::Camera",
+                    package="depthai_ros_driver_v3",
+                    plugin="depthai_ros_driver::Driver",
                     name=name,
                     namespace=namespace,
                     parameters=[
@@ -269,21 +284,24 @@ def launch_setup(context, *args, **kwargs):
             condition=IfCondition(pointcloud_enable),
             target_container=f"{namespace}/{name}_container",
             composable_node_descriptions=[
+                # 2026-06-14: switched from PointCloudXyzrgbNode to PointCloudXyzNode.
+                # Nav2 obstacle costmaps don't use color, and depth-only avoids the
+                # RGB/depth resolution-mismatch SIGSEGV in the depthai v3 driver.
+                # RGB stream is unaffected; /oak/rgb/* still publishes.
                 ComposableNode(
                     package="depth_image_proc",
-                    plugin="depth_image_proc::PointCloudXyzrgbNode",
-                    name="point_cloud_xyzrgb_node",
+                    plugin="depth_image_proc::PointCloudXyzNode",
+                    name="point_cloud_xyz_node",
                     namespace=namespace,
                     remappings=[
                         (
-                            "depth_registered/image_rect",
+                            "image_rect",
                             f"{name}/{stereo_sens_name}/{depth_topic_suffix}",
                         ),
                         (
-                            "rgb/image_rect_color",
-                            f"{name}/{color_sens_name}/image_rect",
+                            "camera_info",
+                            f"{name}/{stereo_sens_name}/camera_info",
                         ),
-                        ("rgb/camera_info", f"{name}/{color_sens_name}/camera_info"),
                         ("points", points_topic_name),
                     ],
                 ),
@@ -293,7 +311,7 @@ def launch_setup(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    depthai_prefix = PathJoinSubstitution([FindPackageShare('depthai_ros_driver')])
+    depthai_prefix = PathJoinSubstitution([FindPackageShare('depthai_ros_driver_v3')])
 
     declared_arguments = [
         DeclareLaunchArgument("name", default_value="oak"),
@@ -308,12 +326,12 @@ def generate_launch_description():
         DeclareLaunchArgument("cam_yaw", default_value="0.0"),
         DeclareLaunchArgument(
             "params_file",
-            default_value=PathJoinSubstitution([FindPackageShare('depthai_ros_driver'), 'config', 'camera.yaml']),
+            default_value=PathJoinSubstitution([FindPackageShare('depthai_ros_driver_v3'), 'config', 'driver.yaml']),
         ),
         DeclareLaunchArgument("use_rviz", default_value="false"),
         DeclareLaunchArgument(
             "rviz_config",
-            default_value=PathJoinSubstitution([FindPackageShare('depthai_ros_driver'), 'config', 'rviz', 'rgbd.rviz']),
+            default_value=PathJoinSubstitution([FindPackageShare('depthai_ros_driver_v3'), 'config', 'rviz', 'rgbd.rviz']),
         ),
         DeclareLaunchArgument("rsp_use_composition", default_value="true"),
         DeclareLaunchArgument(
