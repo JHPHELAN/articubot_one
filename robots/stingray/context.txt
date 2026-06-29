@@ -1,5 +1,5 @@
 computer name ubuntu@Stingray
-familiar name Stormy
+familiar name Stormy the Stingray
 Raspberry Pi 5b 8GB
 Ubuntu 24.04
 ROS2 jazzy
@@ -20,6 +20,8 @@ ROS2 jazzy
       it is oriented orthogonal to the robot with x facing the front of the robot
     OAK-D depthcamera
   LinuxBox the laptop
+    Ubuntu 24.04
+    ROS2 jazzy
     ros2 launch articubot_one joystick.launch.py
     Rviz2
 AI dialog:
