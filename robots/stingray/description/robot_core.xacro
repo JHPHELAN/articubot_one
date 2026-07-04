@@ -94,13 +94,6 @@
             </geometry>
             <material name="blue"/>
         </visual>
-        <visual name="left_wheel_marker_visual">
-            <origin xyz="0 ${wheel_radius*0.7} 0" rpy="0 0 0" />
-            <geometry>
-                <box size="${wheel_radius*0.2} ${wheel_radius*0.3} ${wheel_thickness*1.1}"/>
-            </geometry>
-            <material name="white"/>
-        </visual>
         <collision>
             <geometry>
                 <cylinder radius="0.062" length="0.02"/>
@@ -109,6 +102,48 @@
         <xacro:inertial_cylinder mass="0.141" length="0.02" radius="0.062">
             <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
         </xacro:inertial_cylinder>
+    </link>
+
+    <!-- Black inner hub: solid cylinder r=0.054 (tire radius 0.062 minus the
+         0.008 m tire width) sitting inside the blue tire.  Length 0.0202 so
+         each face protrudes 0.0001 m past the tire, hiding the blue inner
+         disk on both sides while leaving the tire's rim view unaffected. -->
+    <joint name="left_wheel_hub_joint" type="fixed">
+        <parent link="left_wheel_link"/>
+        <child link="left_wheel_hub_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="left_wheel_hub_link">
+        <visual name="left_wheel_hub_visual">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.054" length="0.0202"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <!-- Marker lives in its own link.  RViz paints every <visual> in a link
+         with the first material it sees, so a marker sharing the wheel link
+         inherits the wheel's blue.  A child link with a fixed joint keeps the
+         marker spinning with the wheel while letting it render white. -->
+    <joint name="left_wheel_marker_joint" type="fixed">
+        <parent link="left_wheel_link"/>
+        <child link="left_wheel_marker_link"/>
+        <origin xyz="0 ${wheel_radius*0.7} 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="left_wheel_marker_link">
+        <visual name="left_wheel_marker_visual">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${wheel_radius*0.2} ${wheel_radius*0.3} ${wheel_thickness*1.1}"/>
+            </geometry>
+            <material name="left_wheel_marker_white">
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
     </link>
 
 
@@ -126,13 +161,6 @@
             </geometry>
             <material name="blue"/>
         </visual>
-        <visual name="right_wheel_marker_visual">
-            <origin xyz="0 ${-wheel_radius*0.7} 0" rpy="0 0 0" />
-            <geometry>
-                <box size="${wheel_radius*0.2} ${wheel_radius*0.3} ${wheel_thickness*1.1}"/>
-            </geometry>
-            <material name="white"/>
-        </visual>
         <collision>
             <geometry>
                 <cylinder radius="0.062" length="0.02"/>
@@ -141,6 +169,40 @@
         <xacro:inertial_cylinder mass="0.141" length="0.02" radius="0.062">
             <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
         </xacro:inertial_cylinder>
+    </link>
+
+    <joint name="right_wheel_hub_joint" type="fixed">
+        <parent link="right_wheel_link"/>
+        <child link="right_wheel_hub_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="right_wheel_hub_link">
+        <visual name="right_wheel_hub_visual">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="0.054" length="0.0202"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <joint name="right_wheel_marker_joint" type="fixed">
+        <parent link="right_wheel_link"/>
+        <child link="right_wheel_marker_link"/>
+        <origin xyz="0 ${-wheel_radius*0.7} 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="right_wheel_marker_link">
+        <visual name="right_wheel_marker_visual">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${wheel_radius*0.2} ${wheel_radius*0.3} ${wheel_thickness*1.1}"/>
+            </geometry>
+            <material name="right_wheel_marker_white">
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
     </link>
 
     <joint name="caster_wheel_joint" type="fixed">

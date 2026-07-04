@@ -31,6 +31,7 @@ install(PROGRAMS
   scripts/xy_waypoint_follower.py
   scripts/indicators_node.py
   scripts/frontier_explorer_v2.py
+  scripts/wifi_publisher.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

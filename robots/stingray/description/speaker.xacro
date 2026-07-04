@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- *********************** SPEAKER *********************************  -->
+    <!-- Small rear-facing speaker nestled in front of the rear caster.     -->
+    <!-- Body: rectangular prism 0.0153 (X) x 0.0282 (Y) x 0.031 (Z) m.     -->
+    <!-- Cone: silver disk diameter 0.018 m, centered on the rear (-x)      -->
+    <!-- face, oriented in the YZ plane (axis along X).                     -->
+
+    <xacro:property name="speaker_length" value="0.0153"/>   <!-- X -->
+    <xacro:property name="speaker_width"  value="0.0282"/>   <!-- Y -->
+    <xacro:property name="speaker_height" value="0.031"/>    <!-- Z -->
+
+    <xacro:property name="speaker_x" value="-0.171175"/>   <!-- 2026-06-29: moved forward by speaker_length/4 to align back face with front of rear caster -->
+    <xacro:property name="speaker_y" value="0.0"/>
+    <xacro:property name="speaker_z" value="0.0"/>
+
+    <xacro:property name="speaker_cone_radius" value="0.009"/>   <!-- 0.018 / 2 -->
+    <xacro:property name="speaker_cone_thickness" value="0.001"/>
+    <xacro:property name="speaker_cone_standoff" value="0.0001"/>   <!-- 0.1 mm gap to avoid z-fighting with the body back face -->
+    <!-- Cone offset: half the body length plus standoff plus half the disk
+         thickness, so the disk sits just outside the back face. -->
+    <xacro:property name="speaker_cone_offset_x" value="${-(speaker_length/2 + speaker_cone_standoff + speaker_cone_thickness/2)}"/>
+
+    <joint name="speaker_joint" type="fixed">
+        <parent link="chassis_link"/>
+        <child link="speaker_link"/>
+        <origin xyz="${speaker_x} ${speaker_y} ${speaker_z}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="speaker_link">
+        <visual name="speaker_body_visual">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${speaker_length} ${speaker_width} ${speaker_height}"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+    <!-- The cone must live in its own link.  When multiple <visual> elements
+         share a single <link>, RViz paints them all with the first material
+         encountered (sensor_blue here), regardless of the per-visual material
+         tag.  A child link with a fixed joint side-steps the issue. -->
+    <joint name="speaker_cone_joint" type="fixed">
+        <parent link="speaker_link"/>
+        <child link="speaker_cone_link"/>
+        <origin xyz="${speaker_cone_offset_x} 0 0" rpy="0 ${pi/2} 0"/>
+    </joint>
+
+    <link name="speaker_cone_link">
+        <visual name="speaker_cone_visual">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="${speaker_cone_radius}" length="${speaker_cone_thickness}"/>
+            </geometry>
+            <material name="speaker_cone_white">
+                <color rgba="1 1 1 1"/>
+            </material>
+        </visual>
+    </link>
+
+</robot>

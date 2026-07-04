@@ -53,4 +53,11 @@
     <xacro:property name="battery_capacity" value="2.5"/>
     <xacro:include filename="Zeee_LiPo_battery.xacro" />
 
+    <!-- USB accessories (added 2026-06-29) -->
+    <xacro:include filename="usb_hub.xacro" />
+    <xacro:include filename="usb_audio.xacro" />
+    <xacro:include filename="usb_wifi_antenna.xacro" />
+    <xacro:include filename="speaker.xacro" />
+    <xacro:include filename="estop.xacro" />
+
 </robot>

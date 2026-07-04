@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- *********************** USB AUDIO ADAPTER *********************************  -->
+    <!-- Small USB-A audio dongle (mic + headphone jack).                              -->
+    <!-- Dimensions given in robot frame: 0.024 (X) x 0.011 (Y) x 0.028 (Z) m.         -->
+    <!-- Sits directly on top of the USB hub, shifted forward by 1/4 of the hub        -->
+    <!-- length:                                                                       -->
+    <!--   x = usb_hub_x + usb_hub_length/4 = -0.220 + 0.02625 = -0.19375              -->
+    <!--   y = usb_hub_y                    = +0.035                                   -->
+    <!--   z = usb_hub_z + usb_hub_height/2 + usb_audio_height/2                       -->
+    <!--                                    =  0.000 + 0.015 + 0.014 = +0.029          -->
+
+    <xacro:property name="usb_audio_length" value="0.024"/>
+    <xacro:property name="usb_audio_width"  value="0.011"/>
+    <xacro:property name="usb_audio_height" value="0.028"/>
+
+    <xacro:property name="usb_audio_x" value="-0.19375"/>
+    <xacro:property name="usb_audio_y" value="0.035"/>
+    <xacro:property name="usb_audio_z" value="0.029"/>
+
+    <joint name="usb_audio_joint" type="fixed">
+        <parent link="chassis_link"/>
+        <child link="usb_audio_link"/>
+        <origin xyz="${usb_audio_x} ${usb_audio_y} ${usb_audio_z}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="usb_audio_link">
+        <visual>
+            <geometry>
+                <box size="${usb_audio_length} ${usb_audio_width} ${usb_audio_height}"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+</robot>

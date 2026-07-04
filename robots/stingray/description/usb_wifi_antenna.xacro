@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- *********************** USB WIFI ANTENNA *********************************  -->
+    <!-- Upward-pointing rod antenna on a USB WiFi adapter.                          -->
+    <!-- Cylinder: 0.013 m diameter (radius 0.0065) x 0.230 m tall.                  -->
+    <!-- Stands on top of the USB hub, slightly aft of the hub center:               -->
+    <!--   x = usb_hub_x - 0.015        = -0.235                                     -->
+    <!--   y = usb_hub_y                = +0.035                                     -->
+    <!--   z = usb_hub_z + usb_hub_height/2 + usb_wifi_antenna_length/2              -->
+    <!--                               =  0.000 + 0.015 + 0.115 = +0.130             -->
+    <!-- URDF cylinder long axis is link Z by default => points straight up; no rpy. -->
+
+    <xacro:property name="usb_wifi_antenna_radius" value="0.0065"/>
+    <xacro:property name="usb_wifi_antenna_length" value="0.230"/>
+
+    <xacro:property name="usb_wifi_antenna_x" value="-0.235"/>
+    <xacro:property name="usb_wifi_antenna_y" value="0.035"/>
+    <xacro:property name="usb_wifi_antenna_z" value="0.130"/>
+
+    <joint name="usb_wifi_antenna_joint" type="fixed">
+        <parent link="chassis_link"/>
+        <child link="usb_wifi_antenna_link"/>
+        <origin xyz="${usb_wifi_antenna_x} ${usb_wifi_antenna_y} ${usb_wifi_antenna_z}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="usb_wifi_antenna_link">
+        <visual>
+            <geometry>
+                <cylinder radius="${usb_wifi_antenna_radius}" length="${usb_wifi_antenna_length}"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+    </link>
+
+</robot>

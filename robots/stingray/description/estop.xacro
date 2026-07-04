@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- ********************* EMERGENCY STOP BUTTON ********************** -->
+    <!-- Mushroom-cap E-stop on the tail of Stingray.                       -->
+    <!-- Three stacked parts, each in its own link to dodge the RViz        -->
+    <!-- multi-visual-per-link material bug:                                -->
+    <!--   1. Yellow skirt: flat flange sitting on the chassis top          -->
+    <!--   2. Silver/white shaft: cylindrical housing rising from the       -->
+    <!--      chassis top through the skirt                                 -->
+    <!--   3. Red button: mushroom cap straddling the top of the shaft     -->
+
+    <xacro:property name="estop_x" value="-0.135"/>
+    <xacro:property name="estop_y" value="0.0"/>
+
+    <!-- Vertical lift applied to all three e-stop parts.  chassis_height
+         (0.081) does not account for the ~1/4" acrylic top plate, so the
+         skirt sank into the chassis mesh.  Lifting by 2*skirt_height = 4 mm
+         clears it cleanly. -->
+    <xacro:property name="estop_z_offset" value="${2 * 0.002}"/>
+
+    <!-- Yellow skirt -->
+    <xacro:property name="estop_skirt_radius" value="0.030"/>   <!-- 0.060 / 2 -->
+    <xacro:property name="estop_skirt_height" value="0.002"/>
+    <xacro:property name="estop_skirt_z" value="${chassis_height/2 + estop_skirt_height/2 + estop_z_offset}"/>
+
+    <!-- Silver/white shaft -->
+    <xacro:property name="estop_shaft_radius" value="0.014"/>   <!-- 0.028 / 2 -->
+    <xacro:property name="estop_shaft_height" value="0.018"/>
+    <xacro:property name="estop_shaft_z" value="${chassis_height/2 + estop_shaft_height/2 + estop_z_offset}"/>
+
+    <!-- Red mushroom button (z is an explicit override, not the default
+         chassis_top + h/2 rule, so the cap straddles the top of the shaft) -->
+    <xacro:property name="estop_button_radius" value="0.019"/>  <!-- 0.038 / 2 -->
+    <xacro:property name="estop_button_height" value="0.003"/>
+    <xacro:property name="estop_button_z" value="${chassis_height/2 + 0.019 + estop_z_offset}"/>
+
+    <!-- ====================== SKIRT (yellow) ========================= -->
+    <joint name="estop_skirt_joint" type="fixed">
+        <parent link="chassis_link"/>
+        <child link="estop_skirt_link"/>
+        <origin xyz="${estop_x} ${estop_y} ${estop_skirt_z}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="estop_skirt_link">
+        <visual name="estop_skirt_visual">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="${estop_skirt_radius}" length="${estop_skirt_height}"/>
+            </geometry>
+            <!-- Pure yellow; common_properties has only sensor_yellow (a
+                 mustard), so define the color inline here. -->
+            <material name="estop_skirt_yellow">
+                <color rgba="1 1 0 1"/>
+            </material>
+        </visual>
+    </link>
+
+    <!-- ====================== SHAFT (white) ========================== -->
+    <joint name="estop_shaft_joint" type="fixed">
+        <parent link="chassis_link"/>
+        <child link="estop_shaft_link"/>
+        <origin xyz="${estop_x} ${estop_y} ${estop_shaft_z}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="estop_shaft_link">
+        <visual name="estop_shaft_visual">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="${estop_shaft_radius}" length="${estop_shaft_height}"/>
+            </geometry>
+            <material name="white"/>
+        </visual>
+    </link>
+
+    <!-- ====================== BUTTON (red) =========================== -->
+    <joint name="estop_button_joint" type="fixed">
+        <parent link="chassis_link"/>
+        <child link="estop_button_link"/>
+        <origin xyz="${estop_x} ${estop_y} ${estop_button_z}" rpy="0 0 0"/>
+    </joint>
+
+    <link name="estop_button_link">
+        <visual name="estop_button_visual">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="${estop_button_radius}" length="${estop_button_height}"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+    </link>
+
+</robot>
