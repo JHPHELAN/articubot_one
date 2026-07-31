@@ -94,7 +94,15 @@ def generate_launch_description():
         return [Node(
             package='articubot_one',
             executable='frontier_explorer_v2.py',
-            name='frontier_explorer_v2',
+            # NOTE: intentionally NOT setting name='frontier_explorer_v2' here.
+            # ros2 launch translates `name=` into a global `-r __node:=X` remap,
+            # which rclpy applies to EVERY Node in the process — including the
+            # internal BasicNavigator (default name 'basic_navigator') created
+            # by nav2_simple_commander. That collision produced the
+            #   "Publisher already registered for node name: 'frontier_explorer_v2'"
+            # rcl.logging_rosout warning. The script self-names via
+            # super().__init__("frontier_explorer_v2"), so the params YAML
+            # (`frontier_explorer_v2:` key) still matches.
             output='screen',
             emulate_tty=True,
             parameters=params,

@@ -1,7 +1,15 @@
 <!--
   Custom BT for Stingray: same as navigate_to_pose_w_replanning_and_recovery.xml
-  but with Spin removed from recovery actions (deadly in doorways).
-  Recovery sequence: ClearCostmaps → Wait → BackUp
+  but with Spin AND BackUp removed from recovery actions.
+    - Spin removed: dangerous in doorways / near hanging obstacles.
+    - BackUp removed (2026-07-06): Stormy has no rear-facing sensors and
+      the local costmap does not remember what was behind him. Blind
+      reverse in a home environment is unsafe. Better: exhaust retries on
+      clearing + wait, let the goal abort, and let the caller (frontier
+      explorer / user re-issue / etc.) pick another target.
+  Recovery sequence: ClearCostmaps -> Wait -> (cycle).
+  (Filename left as *_no_spin.xml for stability; nav2_params.yaml still
+  points at it. Rename if you find yourself editing it a lot.)
 -->
 <root BTCPP_format="4" main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
@@ -39,7 +47,6 @@
               <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
             </Sequence>
             <Wait wait_duration="5.0"/>
-            <BackUp backup_dist="0.30" backup_speed="-0.05"/>
           </RoundRobin>
         </ReactiveFallback>
       </Sequence>

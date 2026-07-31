@@ -13,7 +13,7 @@ indicators_node:
 
     # Audio warning (replaces GPIO 22 piezo buzzer).
     # Played via `aplay` through the USB audio dongle.
-    beacon_sound_path: "/home/ubuntu/wav/klingon_alert_LOUD.wav"
+    beacon_sound_path: "/home/ubuntu/wav/klingon_alert.wav"
     beacon_sound_repeat_sec: 3.6 # klingon_alert_LOUD.wav length (two-tone clip); matches two LED cycles at 1.0/0.8
     beacon_sound_device: ""      # empty = aplay default; e.g. "plughw:CARD=Device,DEV=0"
 
@@ -40,25 +40,39 @@ indicators_node:
     # Set to 0.0 to skip the running-light behavior and start with bulbs OFF.
     headlights_startup_on_sec: 3.0
 
-    # Nav2 trouble alert (plays danger.wav when Stormy is in trouble).
-    # Triggers on either: a NavigateToPose goal returning ABORTED, or a
-    # Behavior Tree recovery node entering RUNNING (Clear*Costmap / Wait /
-    # Spin / BackUp). Throttled by alert_min_interval_sec so a flood of
-    # recovery events does not spam the speaker. The alert clip preempts
-    # any currently-playing beacon clip and shares the same audio device.
+    # Nav2 trouble alert (plays danger.wav when Stormy is actually stuck).
+    #
+    # "Stuck" is defined as a *burst* of physical BT recoveries -- N of them
+    # within a time window -- not a single one. Rationale: Nav2 fires a
+    # one-off Spin or BackUp all the time as normal self-recovery from
+    # transient bumps against inflated obstacles. That is NOT stuck. Only
+    # when the robot is repeatedly reaching for physical recoveries within
+    # a short window is it genuinely in trouble.
+    #
+    # ClearCostmap / Wait are intentionally NOT in the recovery list. They
+    # are mild, routine, and used to flood the speaker.
+    #
+    # Goal-aborted alerting is OFF by default: during exploration an
+    # ABORTED goal just means the frontier picker moves on to the next
+    # candidate -- routine, not stuck. Set alert_on_goal_aborted:true to
+    # opt back in (single aborts will still be alerts if you do).
+    #
+    # alert_min_interval_sec is an *additional* throttle so back-to-back
+    # stuck bursts still play at most one clip per interval.
     alert_sound_path: "/home/ubuntu/wav/danger.wav"
-    alert_sound_device: ""        # empty = follow beacon_sound_device
-    alert_min_interval_sec: 8.0   # cooldown between consecutive alerts
-    alert_on_goal_aborted: true   # play on NavigateToPose ABORTED
-    alert_on_recovery: true       # play on BT recovery node entering RUNNING
+    alert_sound_device: ""             # empty = follow beacon_sound_device
+    alert_min_interval_sec: 8.0        # min seconds between actual audio plays
+    alert_on_goal_aborted: false       # exploration: aborts are routine
+    alert_on_recovery: true            # subscribe to /behavior_tree_log
+    alert_recovery_count_threshold: 3  # N recoveries in the window = STUCK
+    alert_recovery_count_window_sec: 30.0
     bt_log_topic: "/behavior_tree_log"
     nav_status_topic: "/navigate_to_pose/_action/status"
-    alert_recovery_node_names:    # substring match against BT node_name
-      - "ClearEntireCostmap"
-      - "ClearLocalCostmap"
-      - "ClearGlobalCostmap"
-      - "Wait"
-      - "Spin"
-      - "BackUp"
+    alert_recovery_node_names:         # substring match against BT node_name
+      - "Spin"                         # physical: yaw-in-place recovery
+      - "BackUp"                       # physical: reverse recovery
+      # Deliberately excluded (mild/routine, not "stuck"):
+      #   - ClearEntireCostmap / ClearLocalCostmap / ClearGlobalCostmap
+      #   - Wait
 
     mock_gpio: false             # set true for non-Pi test

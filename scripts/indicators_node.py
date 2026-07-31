@@ -35,14 +35,24 @@ Safety beacon (LED + audio warning):
       ``beacon_sound_default_on`` to true to restore the old behavior.
 
 Nav2 trouble alert:
-    - Plays ``alert_sound_path`` (default danger.wav) when Nav2 reports
-      trouble. Two trigger sources, each enable-able independently:
-        * Goal aborted: any NavigateToPose goal returning STATUS_ABORTED.
-        * Recovery firing: a Behavior Tree node from
-          ``alert_recovery_node_names`` enters RUNNING (e.g. ClearCostmap,
-          Wait, Spin).
-    - Throttled by ``alert_min_interval_sec`` so a flood of recovery
-      events does not flood the speaker.
+    - Plays ``alert_sound_path`` (default danger.wav) only when Nav2 is
+      actually stuck ("help, I'm stuck!"), not on every routine hiccup.
+      Two trigger sources, each enable-able independently:
+        * Recovery thrashing (default): a physical BT recovery node
+          (``Spin`` / ``BackUp`` by default; configurable via
+          ``alert_recovery_node_names``) fires
+          ``alert_recovery_count_threshold`` times within
+          ``alert_recovery_count_window_sec``. One-off ``Spin``/``BackUp``
+          events are treated as normal Nav2 self-recovery and do NOT
+          alert; only a burst of them means the robot is actually stuck.
+          ``ClearCostmap`` / ``Wait`` are intentionally NOT in the default
+          set -- they are mild, routine, and used to flood the speaker.
+        * Goal aborted (disabled by default): any NavigateToPose goal
+          returning STATUS_ABORTED. Off by default because during
+          exploration ``ABORTED`` just means "pick another candidate";
+          set ``alert_on_goal_aborted: true`` to opt back in.
+    - Additionally throttled by ``alert_min_interval_sec`` so back-to-back
+      "stuck" bursts still play at most one clip per interval.
     - Shares the single aplay subprocess slot with the beacon and
       preempts any in-progress beacon clip; beacon clips will not start
       while an alert clip is playing.
@@ -53,6 +63,7 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+from collections import deque
 
 import rclpy
 from rclpy.node import Node
@@ -124,15 +135,23 @@ class IndicatorsNode(Node):
             '/home/ubuntu/wav/danger.wav')
         self.declare_parameter('alert_sound_device', '')  # empty = follow beacon device
         self.declare_parameter('alert_min_interval_sec', 8.0)
-        self.declare_parameter('alert_on_goal_aborted', True)
+        # Off by default: during exploration an ABORTED goal just means the
+        # frontier picker moves on. Not a "stuck" event.
+        self.declare_parameter('alert_on_goal_aborted', False)
         self.declare_parameter('alert_on_recovery', True)
         self.declare_parameter('bt_log_topic', '/behavior_tree_log')
         self.declare_parameter(
             'nav_status_topic', '/navigate_to_pose/_action/status')
+        # Physical, hail-mary recoveries only. ClearCostmap and Wait are
+        # Nav2's mild routine responses and are intentionally excluded --
+        # they used to flood the alert speaker with false positives.
         self.declare_parameter(
             'alert_recovery_node_names',
-            ['ClearEntireCostmap', 'ClearLocalCostmap', 'ClearGlobalCostmap',
-             'Wait', 'Spin', 'BackUp'])
+            ['Spin', 'BackUp'])
+        # "Stuck" = this many recoveries within this window. One-off
+        # spins/backups are normal self-recovery; only a burst counts.
+        self.declare_parameter('alert_recovery_count_threshold', 3)
+        self.declare_parameter('alert_recovery_count_window_sec', 30.0)
 
         gp = self.get_parameter
         self._hl_pin = int(gp('headlights_pin').value)
@@ -171,6 +190,15 @@ class IndicatorsNode(Node):
         self._bt_log_topic = str(gp('bt_log_topic').value)
         self._nav_status_topic = str(gp('nav_status_topic').value)
         self._recovery_node_names = list(gp('alert_recovery_node_names').value)
+        self._recovery_count_thresh = int(
+            gp('alert_recovery_count_threshold').value)
+        self._recovery_window_sec = float(
+            gp('alert_recovery_count_window_sec').value)
+
+        # Sliding window of recent recovery-event timestamps (rclpy Time
+        # nanoseconds). Only fires the alert when the count in the last
+        # _recovery_window_sec reaches _recovery_count_thresh.
+        self._recovery_events: deque = deque()
 
         # State
         self._headlights_on = self._startup_on > 0.0  # ON during startup window
@@ -339,17 +367,44 @@ class IndicatorsNode(Node):
             break
 
     def _bt_log_cb(self, msg) -> None:
-        # Trigger when a recovery node transitions into RUNNING.
+        # Register recovery-node transitions into RUNNING against a
+        # sliding window; only alert when Nav2 is actually thrashing
+        # (see _register_recovery_event).
         for ev in msg.event_log:
             if ev.current_status != 'RUNNING' or ev.previous_status == 'RUNNING':
                 continue
             name = ev.node_name
             for needle in self._recovery_node_names:
                 if needle and needle in name:
-                    self._alert_pending = True
-                    self.get_logger().info(
-                        f'Nav2 recovery firing ({name}) -> danger alert queued.')
+                    self._register_recovery_event(name)
                     return
+
+    def _register_recovery_event(self, name: str) -> None:
+        """Add a physical-recovery timestamp to the sliding window and
+        queue the danger alert only if the count reaches threshold."""
+        now = self.get_clock().now()
+        now_ns = now.nanoseconds
+        window_ns = int(self._recovery_window_sec * 1e9)
+        cutoff_ns = now_ns - window_ns
+        self._recovery_events.append(now_ns)
+        while self._recovery_events and self._recovery_events[0] < cutoff_ns:
+            self._recovery_events.popleft()
+        count = len(self._recovery_events)
+        if count >= self._recovery_count_thresh:
+            self._alert_pending = True
+            self.get_logger().info(
+                f'Nav2 STUCK: {count} physical recoveries in '
+                f'{self._recovery_window_sec:.0f}s (latest: {name}) '
+                '-> danger alert queued.'
+            )
+            # Reset the window after firing so we don't re-alert on the
+            # very next event; the operator has already been warned.
+            self._recovery_events.clear()
+        else:
+            self.get_logger().debug(
+                f'Recovery event {name} ({count}/{self._recovery_count_thresh} '
+                f'within {self._recovery_window_sec:.0f}s) -- not alerting yet.'
+            )
 
     def _tick(self) -> None:
         now = self.get_clock().now()

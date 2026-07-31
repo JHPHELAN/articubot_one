@@ -1,10 +1,20 @@
 frontier_explorer_v2:
   ros__parameters:
-    # Known-good tuning as of 2026-06-29 (was the `explore` alias overrides).
-    # Anything not listed here keeps the script's documented defaults.
+    # 2026-07-06 (PM): min_clearance_m 0.40 was starving Stormy at his own
+    # study French doors (opening ~0.75 m wide -> doorway centroid has only
+    # ~0.37 m clearance to each jamb -> rejected). The geometric clearance
+    # filter is now just a "not literally inside a wall" sanity backstop;
+    # the real safety check is goal_max_cost (0-100) against the inflated
+    # /global_costmap/costmap. Robot half-width ~0.14 m, so 0.15 = "there
+    # is at least the robot's own body-width of open cells around the goal".
+    #
+    # If exploration starves on the FIRST few cycles of a fresh map
+    # (global_costmap not yet received, narrow-only frontiers, etc.),
+    # temporarily raise goal_max_cost to 95 instead of loosening clearance
+    # further -- inflation-aware limits scale correctly with geometry.
     dry_run: false
-    min_clearance_m: 0.25
-    path_clearance_max_cost: 98
-    goal_max_cost: 98
+    min_clearance_m: 0.15            # was 0.40; barely wider than robot half-width
+    path_clearance_max_cost: 90      # just below inscribed (99)
+    goal_max_cost: 90                # PRIMARY safety filter (inflation-aware)
     failures_before_blacklist: 3
     blacklist_radius_m: 0.4

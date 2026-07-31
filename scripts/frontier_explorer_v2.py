@@ -194,16 +194,18 @@ class FrontierExplorerV2(Node):
             return
 
         candidates, diag = self._compute_frontier_candidates(self.map_msg, robot_xy)
+        # Compact one-liner used by both "no candidates" and "none feasible" paths.
+        diag_str = (
+            f"free={diag['free']} unknown={diag['unknown']} occupied={diag['occupied']} "
+            f"frontier_cells={diag['frontier_cells']} clusters={diag['clusters']} "
+            f"rej_small={diag['rej_small']} rej_blacklist={diag['rej_blacklist']} "
+            f"rej_recent={diag['rej_recent']} rej_min_dist={diag['rej_min_dist']} "
+            f"rej_clearance={diag['rej_clearance']} rej_pocket={diag['rej_pocket']} "
+            f"rej_goal_cost={diag['rej_goal_cost']} "
+            f"rej_goal_unknown={diag['rej_goal_unknown']}"
+        )
         if not candidates:
-            self.get_logger().info(
-                "No frontier candidates found. "
-                f"free={diag['free']} unknown={diag['unknown']} occupied={diag['occupied']} "
-                f"frontier_cells={diag['frontier_cells']} clusters={diag['clusters']} "
-                f"rej_small={diag['rej_small']} rej_blacklist={diag['rej_blacklist']} "
-                f"rej_recent={diag['rej_recent']} rej_min_dist={diag['rej_min_dist']} "
-                f"rej_clearance={diag['rej_clearance']} rej_pocket={diag['rej_pocket']} "
-                f"rej_goal_cost={diag['rej_goal_cost']}"
-            )
+            self.get_logger().info(f"No frontier candidates found. {diag_str}")
             return
 
         if self.dry_run:
@@ -236,7 +238,8 @@ class FrontierExplorerV2(Node):
             self.get_logger().warn(
                 f"No path-feasible frontier candidate found. "
                 f"rejected_no_path={rejected_no_path} rejected_detour={rejected_detour} "
-                f"rejected_blocked={rejected_blocked}"
+                f"rejected_blocked={rejected_blocked} "
+                f"[pre-filter: {diag_str}]"
             )
             self.no_path_cycles += 1
             self._maybe_recover_from_no_path()
@@ -379,6 +382,7 @@ class FrontierExplorerV2(Node):
             'rej_clearance': 0,
             'rej_pocket': 0,
             'rej_goal_cost': 0,
+            'rej_goal_unknown': 0,
         }
 
         # 2026-05-17: Pre-compute search radius (in cells) for tight-passage clearance check.
@@ -449,11 +453,22 @@ class FrontierExplorerV2(Node):
             # planner refuses any goal whose cell is lethal/inflated (cost >=
             # inscribed). Filter here so we don't burn 24 getPath aborts per cycle
             # on candidates the planner can't accept.
+            #
+            # 2026-07-06: ALSO reject goal cells that are UNKNOWN in the global
+            # costmap. With `allow_unknown: false` on the planner, an unknown
+            # goal cell yields status 6 (GOAL_OCCUPIED). Frontier centroids often
+            # land on cells that are still unknown in the global costmap (which
+            # lags /map by a beat), so this catches the vast majority of the
+            # status-6 flood we were seeing.
             if self.goal_cost_check and self.global_costmap is not None:
                 gc_cost = self._cost_at_world(self.global_costmap, wx, wy)
-                if gc_cost is not None and gc_cost >= self.goal_max_cost:
-                    diag['rej_goal_cost'] += 1
-                    continue
+                if gc_cost is not None:
+                    if gc_cost < 0:
+                        diag['rej_goal_unknown'] += 1
+                        continue
+                    if gc_cost >= self.goal_max_cost:
+                        diag['rej_goal_cost'] += 1
+                        continue
 
             # 2026-05-17 (PM): "Get your nose out" — reject clusters whose unknown pocket
             # is already smaller than min_unknown_pocket_cells. Lidar has already seen the
