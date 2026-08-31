@@ -1,4 +1,5 @@
 from launch import LaunchDescription
+from launch.actions import TimerAction
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -64,6 +65,11 @@ def generate_launch_description():
         remappings=[("imu", "imu/data")]
     )
 
+    # Delay first start so the BNO085 SH-2 sensor hub finishes booting before we open I2C
+    # and issue enable_report() calls. Otherwise ROTATION_VECTOR/GYROSCOPE enables can race
+    # sensor-hub boot-complete and only ACCELEROMETER ends up streaming (imu_received_flag_=0x02).
+    bno085_delayed = TimerAction(period=2.0, actions=[bno085_driver_node])
+
     # Run EKF first so odom->base_link is stable before SLAM/localization.
     ekf_imu_odom = include_launch(
         package_name,
@@ -119,7 +125,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         ldlidar_node,
-        bno085_driver_node,
+        bno085_delayed,
         ekf_imu_odom,
         oakd_launch,
     ])
