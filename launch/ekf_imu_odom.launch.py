@@ -72,6 +72,8 @@ def generate_launch_description():
                 parameters=[ekf_params_file, {"use_sim_time": use_sim_time}],
                 #remappings=[("odometry/filtered", "odometry/local"),("/tf", "tf_trash")],
                 remappings=[("odometry/filtered", "odometry/local")],
+                # Suppress periodic foxglove_bridge parameter-probe warnings (e.g. 'imu1' not initialized).
+                arguments=["--ros-args", "--log-level", "rclcpp:=error"],
             )
         ]
     )

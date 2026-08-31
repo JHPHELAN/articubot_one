@@ -36,7 +36,9 @@ def generate_launch_description():
         name='nav2_container',
         composable_node_descriptions=[], # leave empty, as we are using nav2_launch.py to load components
         parameters=[nav2_params_file],   # must be passed here - see https://github.com/ros-navigation/navigation2/issues/4011
-        output='screen'
+        output='screen',
+        # Suppress periodic foxglove_bridge parameter-probe warnings (e.g. 'FootprintApproach.points' not initialized).
+        arguments=['--ros-args', '--log-level', 'rclcpp:=error'],
     )
 
     # You need to press "Startup" button in RViz when autostart=false
