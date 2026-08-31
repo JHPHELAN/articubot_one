@@ -8,6 +8,10 @@ bno08x_driver:
 
     frame_id: "imu_link"  # Match the existing frame_id
 
+    # Chassis, motors, and USB WiFi antenna prevent SH-2 mag calibration → 9-DOF
+    # (default) stalls waiting for mag. Use 6-DOF (accel+gyro) orientation.
+    enable_6dof_mode: true
+
     # Disable magnetometer — use SH2_GAME_ROTATION_VECTOR (relative orientation)
     # instead of SH2_ROTATION_VECTOR (absolute/magnetic north)
     imu:
