@@ -3,7 +3,7 @@ familiar name Stormy the Stingray
 Raspberry Pi 5b 8GB
 Ubuntu 24.04
 ROS2 jazzy
-2 computers:
+3 computers:
   Stingray the robot
     Map coordinate system:
       +x = West (dock faces West/+x)
@@ -24,6 +24,45 @@ ROS2 jazzy
     ROS2 jazzy
     ros2 launch articubot_one joystick.launch.py
     Rviz2
+  HankRearden the Windows laptop -- user's primary workstation
+    Wired to Study Deco via TL-SG108 switch.
+    Development / robot access:
+      VSCode -- local, plus SSH remote into Stingray and LinuxBox (this AI session runs here).
+      PuTTY -- alternate SSH into Stingray and LinuxBox.
+      FileZilla -- file transfer to/from Stingray and LinuxBox.
+      NoMachine -- virtual desktop into Stingray and LinuxBox.
+      XLaunch -- X server for SSH X11 forwarding.
+      Chrome -- web access, including GitHub.
+    ROS-adjacent tools:
+      Foxglove Studio -- during live driving, subscribes only to
+        /oak/rgb/image_rect/compressed for FPV video.
+        Has also been used to analyze other topics on occasion.
+        Day-to-day Rviz2 lives on LinuxBox.
+      BasicMicro Motion Studio -- RoboClaw configuration.
+      WordPerfect -- "Stingray Experience" running log.
+    General office / comms:
+      Thunderbird e-mail.
+      Zoom for HBRC robotics club meetings.
+      QuattroPro spreadsheet.
+      Dymo label maker.
+      Adobe Acrobat.
+Network:
+  Home LAN: 192.168.68.0/22 (Deco X20 mesh).
+  Mesh, all units on wired backhaul:
+    Master Closet Deco = gateway at 192.168.68.1 (between fiber modem and rest).
+    Sewing Deco and Study Deco = follower units.
+    Planned: 4th Deco at Breakfast (rewired wall socket reserved for it).
+  Stingray (192.168.68.66, DHCP reservation).
+    Primary link: WiFi. Realtek RTL8812BU USB dongle, iface wlxUSB.
+      5 GHz SSID H0bb1tH0l3; 2.4 GHz intentionally disabled at client.
+      Currently USB 2 High-Speed, ~250 Mbit/s TCP ceiling to wired peers.
+      Firmware /lib/firmware/rtw88/rtw8822b_fw.bin.zst updated 2026-08-28 to linux-firmware.git v30.20.0.
+    Fallback: Ethernet, available when in drydock (use for risky WiFi/driver changes).
+    Pi 5 built-in wlan0 exists as hot standby (netplan metric 300).
+  Study Deco -> TL-SG108 gigabit switch (wired) fans out to:
+    LinuxBox at 192.168.68.99 (enp3s0f1). Roles: joystick, Rviz2, iperf3 -s (systemd, always on).
+    LinuxBox WiFi wlp2s0 at 192.168.68.98 (rarely used).
+    HankRearden (Windows laptop), wired.
 AI dialog:
   One Step At A Time
     Put code to be run in an 'allow' bash box.
