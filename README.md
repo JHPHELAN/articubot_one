@@ -6,7 +6,7 @@ branch:
 - [`scripts/frontier_explorer_v2.py`](scripts/frontier_explorer_v2.py)
 
 The explanation below was written by **ChatGPT** (via Sergei Grachine of the
-HomeBrew Robotics Club) as an answer to Michel Wimble's question about how the
+HomeBrew Robotics Club) as an answer to Michael Wimble's question about how the
 node works. It is reproduced here, lightly reformatted for GitHub Markdown, so
 that HBRC members and anyone else browsing the branch has a single canonical
 place to read it. Original shared conversation:
@@ -642,7 +642,7 @@ goals, and goal cells that look valid in `/map` but aren't valid to Nav2.
 
 Explanation authored by **ChatGPT** (OpenAI), shared by Sergei Grachine of
 the [HomeBrew Robotics Club](https://www.hbrobotics.org/) and published here
-in response to a question from Michel Wimble at an HBRC Zoom meeting on
+in response to a question from Michael Wimble at an HBRC Zoom meeting on
 2026-09-01. The code being described lives at
 [`scripts/frontier_explorer_v2.py`](scripts/frontier_explorer_v2.py) on this
 branch and was written with the help of GitHub Copilot (Claude) working with
