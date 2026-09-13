@@ -13,7 +13,7 @@ indicators_node:
 
     # Audio warning (replaces GPIO 22 piezo buzzer).
     # Played via `aplay` through the USB audio dongle.
-    beacon_sound_path: "/home/ubuntu/wav/klingon_alert.wav"
+    beacon_sound_path: "/home/ubuntu/wav/active/klingon_alert.wav"
     beacon_sound_repeat_sec: 3.6 # klingon_alert_LOUD.wav length (two-tone clip); matches two LED cycles at 1.0/0.8
     beacon_sound_device: ""      # empty = aplay default; e.g. "plughw:CARD=Device,DEV=0"
 
@@ -59,7 +59,7 @@ indicators_node:
     #
     # alert_min_interval_sec is an *additional* throttle so back-to-back
     # stuck bursts still play at most one clip per interval.
-    alert_sound_path: "/home/ubuntu/wav/danger.wav"
+    alert_sound_path: "/home/ubuntu/wav/active/danger.wav"
     alert_sound_device: ""             # empty = follow beacon_sound_device
     alert_min_interval_sec: 8.0        # min seconds between actual audio plays
     alert_on_goal_aborted: false       # exploration: aborts are routine
