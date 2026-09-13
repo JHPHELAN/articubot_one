@@ -50,8 +50,7 @@ Network:
   Home LAN: 192.168.68.0/22 (Deco X20 mesh).
   Mesh, all units on wired backhaul:
     Master Closet Deco = gateway at 192.168.68.1 (between fiber modem and rest).
-    Sewing Deco and Study Deco = follower units.
-    Planned: 4th Deco at Breakfast (rewired wall socket reserved for it).
+    Sewing, Study, and Breakfast Deco = follower units.
   Stingray (192.168.68.66, DHCP reservation).
     Primary link: WiFi. Realtek RTL8812BU USB dongle, iface wlxUSB.
       5 GHz SSID H0bb1tH0l3; 2.4 GHz intentionally disabled at client.
@@ -63,6 +62,7 @@ Network:
     LinuxBox at 192.168.68.99 (enp3s0f1). Roles: joystick, Rviz2, iperf3 -s (systemd, always on).
     LinuxBox WiFi wlp2s0 at 192.168.68.98 (rarely used).
     HankRearden (Windows laptop), wired.
+    Stingray/Stormy, wired — only when in drydock (risky WiFi/driver work).
 AI dialog:
   One Step At A Time
     Put code to be run in an 'allow' bash box.
