@@ -105,6 +105,16 @@ roboclaw_driver:
     m2_max_current: 2.7
 
     # ============================================================================
+    # MAIN BATTERY VOLTAGE CALIBRATION
+    # ============================================================================
+    # RoboClaw firmware has no user calibration for the main-battery reading;
+    # this driver applies:  reported = raw/10.0 * main_battery_scale + main_battery_offset
+    # Bench cal 2026-09-04 (8-point sweep, bus voltmeter vs driver): pure additive
+    # offset of ~-1.525 V, unit slope. Residuals ±0.005 V (readback quantum floor).
+    main_battery_scale: 1.0
+    main_battery_offset: -1.525
+
+    # ============================================================================
     # MOTOR ACCELERATION SETTINGS
     # ============================================================================
     accel_quad_pulses_per_second: 1000    # Motor acceleration in encoder counts per second squared
