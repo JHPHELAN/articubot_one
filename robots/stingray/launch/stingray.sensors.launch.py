@@ -97,6 +97,8 @@ def generate_launch_description():
             'parent_frame': 'oakd_front_panel',
             'params_file': oakd_config,
             'enable_color': 'true',
+            'enable_infra1': 'false',
+            'enable_infra2': 'false',
             'rectify_rgb': 'true',
             'pointcloud.enable': 'true'
         }

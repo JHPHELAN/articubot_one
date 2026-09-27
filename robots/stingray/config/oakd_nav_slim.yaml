@@ -6,6 +6,23 @@
 # Reduced: stereo resolution and FPS to keep Pi 5 CPU and USB bandwidth happy.
 /oak:
   ros__parameters:
+    # DepthAI declares per-topic enable_pub_plugins (whitelist) at
+    # oak.<stream>.image_raw.enable_pub_plugins — NOT the standard
+    # image_transport disable_pub_plugins at node level. Narrowing to
+    # raw+compressed drops theora, zstd, compressedDepth publishers on
+    # both rgb and stereo image_raw. rectify_color_node's image_rect
+    # transports are a separate node's problem (skipped this pass).
+    oak:
+      rgb:
+        image_raw:
+          enable_pub_plugins:
+            - "image_transport/raw"
+            - "image_transport/compressed"
+      stereo:
+        image_raw:
+          enable_pub_plugins:
+            - "image_transport/raw"
+            - "image_transport/compressed"
     camera:
       i_pipeline_type: RGBD         # RGBD reliably publishes depth; RGB suppressed via launch arg enable_color:=false
       i_nn_type: none
