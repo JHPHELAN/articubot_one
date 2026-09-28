@@ -1,20 +1,208 @@
+# =====================================================================
+# frontier_explorer_v2 parameters -- Stingray (Stormy) tuning
+# =====================================================================
+# Consumed by the generic `frontier_explorer` package's explore.launch.py
+# via `params_file:=<this file>`. The node itself lives at
+#   ~/robot_ws/src/frontier_explorer/scripts/frontier_explorer_v2.py
+# and its shipped example defaults are at
+#   ~/robot_ws/src/frontier_explorer/config/frontier_explorer.example.yaml
+#
+# Parameters are grouped by how often you'll touch them and how much
+# damage a bad value does:
+#
+#   A. Operating mode + safety-critical filters (touch these first
+#      when the robot picks impossible or dangerous goals).
+#   B. Frontier selection and scoring (shapes "personality" -- nearby
+#      vs. adventurous, thorough vs. hasty).
+#   C. Memory and blacklisting (tune when the robot ping-pongs between
+#      the same bad spots).
+#   D. Timing / recovery / loop plumbing (rarely change).
+#
+# Values shown reflect what actually runs on Stormy. Where a value
+# differs from the frontier_explorer example.yaml (or the Python default)
+# the comment says so and why.
+#
+# TL;DR from the 2026-07-06 Study-doorway incident: the PRIMARY safety
+# filter for "don't crash into a wall" is goal_max_cost against the
+# inflated /global_costmap/costmap, NOT geometric min_clearance_m.
+# Inflation-aware limits scale correctly with geometry. If you have
+# to loosen a safety filter, loosen goal_max_cost (e.g. 90 -> 95)
+# before you loosen min_clearance_m.
+# =====================================================================
+
 frontier_explorer_v2:
   ros__parameters:
-    # 2026-07-06 (PM): min_clearance_m 0.40 was starving Stormy at his own
-    # study French doors (opening ~0.75 m wide -> doorway centroid has only
-    # ~0.37 m clearance to each jamb -> rejected). The geometric clearance
-    # filter is now just a "not literally inside a wall" sanity backstop;
-    # the real safety check is goal_max_cost (0-100) against the inflated
-    # /global_costmap/costmap. Robot half-width ~0.14 m, so 0.15 = "there
-    # is at least the robot's own body-width of open cells around the goal".
+
+    # -----------------------------------------------------------------
+    # GROUP A -- Operating mode and safety-critical filters
+    # -----------------------------------------------------------------
+
+    # true  = evaluate, log the chosen goal, but DO NOT drive the robot.
+    # false = live mode; send goals to Nav2.
+    # Script default is true (safe). We flip it here because Stormy is
+    # intended to actually explore when this launch file is invoked.
+    dry_run: false
+
+    # 2026-05-30: Goal-cell cost pre-check. Before scoring a candidate,
+    # look up the global costmap value at the candidate's centroid. If
+    # cost is at/above goal_max_cost (0-100 scale), the goal sits inside
+    # the inflation halo of an obstacle and the planner will abort with
+    # status 6 (GOAL_OCCUPIED). Reject early to avoid ~24 getPath aborts
+    # per cycle. Set goal_cost_check to false to disable.
+    goal_cost_check: true
+
+    # 2026-07-06 (PM): PRIMARY safety filter. Rejects any frontier goal
+    # whose centroid sits in an inflated / lethal / unknown cell of the
+    # global costmap. 0-100 scale; 99 = inscribed (guaranteed collision),
+    # 90 sits just below inscribed so doorways still pass. Raising to
+    # ~95 lets the robot squeeze through narrower openings (Study French
+    # doors ~0.75 m needed this once); dropping to ~80 makes it timid.
+    # This is the knob you touch BEFORE loosening min_clearance_m.
+    goal_max_cost: 90
+
+    # 2026-05-18: Path-corridor clearance filter. After the global
+    # planner returns a path, sample it against the inflated global
+    # costmap. If any sampled cell along the path (past
+    # path_clearance_skip_start_m, to ignore the robot's own footprint
+    # at the start) has cost >= path_clearance_max_cost, reject the
+    # candidate as a corridor squeeze (e.g. threading a 30 cm gap
+    # between chair legs to a pocket of unknown behind furniture).
+    # Set path_clearance_check to false to disable.
+    path_clearance_check: true
+
+    # 90 sits just below inscribed (99) -- catches the squeeze zone
+    # without rejecting normal doorways.
+    path_clearance_max_cost: 90
+
+    # Sample interval along the path (m). Smaller = finer grained but
+    # more CPU. Coerced to at least one costmap cell internally.
+    path_clearance_sample_step_m: 0.10
+
+    # Skip this many metres from the start of the path before sampling
+    # so the robot's own footprint doesn't self-reject.
+    path_clearance_skip_start_m: 0.35
+
+    # 2026-05-17 (PM): "Local planner says I ain't goin that way"
+    # filter. After the global planner returns a path, compare its
+    # length to the straight-line distance. If the ratio exceeds this,
+    # the goal requires a crazy detour (e.g. routing around the whole
+    # house through chair-leg gauntlets to reach a frontier on the
+    # other side of a wall) -- reject and pick a different candidate.
+    #   1.0 = straight line
+    #   1.5 = mild dogleg
+    #   3.0 = clearly going the long way around
+    # Set to 0 to disable.
+    #
+    # Tuning history (2026-05-17 evening): 2.5 didn't catch enough
+    # back-door routes; 2.0 rejected legitimate cross-room hallway
+    # goals (straight line cuts through walls, real path winds through
+    # doorways = 2-3x naturally); settled on 3.0 which still rejects
+    # the 4-7x nonsense we've seen in logs.
+    max_path_detour_ratio: 3.0
+
+    # 2026-05-17: Tight-passage avoidance. Reject frontier goals whose
+    # centroid is closer than this to any occupied cell in /map. Robot
+    # half-width is ~0.14 m.
+    #
+    # 2026-07-06 (PM): min_clearance_m 0.40 was starving Stormy at his
+    # own Study French doors (opening ~0.75 m wide -> doorway centroid
+    # has only ~0.37 m clearance to each jamb -> rejected). The
+    # geometric clearance filter is now just a "not literally inside a
+    # wall" sanity backstop; the real safety check is goal_max_cost
+    # above. Robot half-width ~0.14 m, so 0.15 = "there is at least the
+    # robot's own body-width of open cells around the goal".
     #
     # If exploration starves on the FIRST few cycles of a fresh map
     # (global_costmap not yet received, narrow-only frontiers, etc.),
-    # temporarily raise goal_max_cost to 95 instead of loosening clearance
+    # temporarily raise goal_max_cost to 95 instead of loosening this
     # further -- inflation-aware limits scale correctly with geometry.
-    dry_run: false
-    min_clearance_m: 0.15            # was 0.40; barely wider than robot half-width
-    path_clearance_max_cost: 90      # just below inscribed (99)
-    goal_max_cost: 90                # PRIMARY safety filter (inflation-aware)
+    #
+    # (Script default is 0.40 for the generic case; Stormy runs 0.15
+    # because of the Study doors.)
+    min_clearance_m: 0.15
+
+    # 2026-05-17 (PM): "Get your nose out of there" filter. After the
+    # lidar has seen the boundaries of a small pocket (under step-stool,
+    # between chair legs, etc.), tiny slivers of unknown remain visible
+    # through gaps and look like frontiers. If the connected unknown
+    # region behind a cluster is smaller than this, the pocket is
+    # already characterized -- skip it.
+    # 25 cells ~= 0.0625 m^2 at 0.05 m/cell (roughly a 25 cm x 25 cm
+    # square). Set to 0 to disable.
+    min_unknown_pocket_cells: 25
+
+    # -----------------------------------------------------------------
+    # GROUP B -- Frontier selection and scoring
+    # -----------------------------------------------------------------
+
+    # 2026-05-17: Tried min_cluster_size=15 to suppress phantom-gap
+    # goals; diag showed 174/177 clusters rejected on a fresh map (avg
+    # ~1.9 cells/cluster early on), so 15 starves the explorer. Reverted
+    # to 6. Phantom-gap suppression now lives in the clearance check
+    # (min_clearance_m) above, which is the actual geometric signature
+    # of a wormhole through a wall.
+    min_cluster_size: 6
+
+    # 2026-05-17: Nearer-first preference. Cap the cluster bonus so a
+    # giant remote frontier can't overwhelm a modest nearby one, and
+    # apply a stronger distance penalty. "Nearest open nook before
+    # farthest field."
+    cluster_score_cap: 30.0
+    distance_score_weight: 2.5
+
+    # How much extra score to award per metre of clearance around the
+    # goal. Raise to prefer wide-open goals over cluttered ones.
+    clearance_score_weight: 4.0
+
+    # Minimum straight-line distance (m) from the robot to a candidate
+    # before it's considered. Prevents the robot from twitching in
+    # place chasing frontier cells right at its own footprint edge.
+    min_goal_distance_m: 0.6
+
+    # -----------------------------------------------------------------
+    # GROUP C -- Memory and blacklisting
+    # -----------------------------------------------------------------
+
+    # Number of consecutive failures (canceled or FAILED) at a given
+    # goal cell before it gets radius-blacklisted.
+    # Script default is 2; Stormy uses 3 so a single flaky recovery
+    # cycle doesn't burn a legitimate goal.
     failures_before_blacklist: 3
+
+    # 2026-05-17 (PM): When a goal hits failures_before_blacklist,
+    # blacklist a radius around it (not just the 0.2 m goal_key cell).
+    # Prevents the explorer from picking nearby variants of the same
+    # impossible passage (e.g. 17.48,3.35 then 17.78,3.02).
+    # Script default 0.8 = one robot length. Stormy runs 0.4 to keep
+    # the "no-go" halo tight enough to still find real doorways next
+    # to walls we've bumped.
     blacklist_radius_m: 0.4
+
+    # How many recent goals to remember for the "don't immediately
+    # revisit" check (hard-coded 0.35 m radius in the script).
+    recent_goal_memory: 6
+
+    # Grid quantum (m) used to bucket goals for the failure counter.
+    # Two candidates within this distance count as the same goal for
+    # blacklist accounting. Coerced to >= 0.05 internally.
+    goal_key_resolution_m: 0.2
+
+    # -----------------------------------------------------------------
+    # GROUP D -- Timing, recovery, and loop plumbing
+    # -----------------------------------------------------------------
+
+    # Main tick rate. 0.33 Hz = evaluate roughly every 3 seconds, which
+    # is plenty for a frontier explorer riding on top of Nav2.
+    loop_hz: 0.33
+
+    # Cancel and re-plan if a single goal takes longer than this (s).
+    goal_timeout_sec: 120.0
+
+    # Consecutive tick cycles with zero path-feasible candidates before
+    # the recovery mechanism (clear costmaps, forget failed goals)
+    # fires. Higher = more patient, lower = faster recovery.
+    no_path_recovery_cycles: 6
+
+    # Minimum seconds between consecutive costmap-clearing recoveries.
+    # Prevents thrash if the environment stays hostile.
+    costmap_clear_cooldown_sec: 30.0
