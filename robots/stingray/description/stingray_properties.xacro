@@ -3,7 +3,12 @@
 
     <xacro:property name="chassis_length" value="0.266"/>
     <xacro:property name="chassis_width" value="0.228"/>
-    <xacro:property name="chassis_height" value="0.081"/>
+    <!-- 2026-10-03: 0.081->0.0882. Real chassis = 3" (0.0762) side panels + 6mm top
+         + 6mm bottom plate = 0.0882, centered on base_link (side-panel centerline).
+         Makes chassis_height/2 = 0.0441 = base_link->chassis-top, which the lidar
+         support, e-stop and battery mounts rely on. Measured chassis top = 105mm off
+         floor = wheel_radius(0.0615) + 0.0441. -->
+    <xacro:property name="chassis_height" value="0.0882"/>
     <!--chassis_offset is distance from center of chassis 
     to chassis origin between the wheels at base_link -->
     <xacro:property name="chassis_offset" value="0.0455"/>

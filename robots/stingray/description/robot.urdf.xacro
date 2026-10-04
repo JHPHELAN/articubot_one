@@ -40,7 +40,15 @@
     <!-- <xacro:include filename="$(find articubot_one)/robots/stingray/description/oakd.xacro" /> -->
     <xacro:include filename="$(find articubot_one)/description/oakd.xacro" />
     <xacro:oakd_link mount_point="front_panel"/>
-    <xacro:oakd_joint x="0.023" y="0.01" z="0.030" roll="0" pitch="0" yaw="0" mount_point="front_panel"/>
+    <!-- 2026-10-03: pitch 0 -> 0.024 -> 0.027 rad (~1.55 deg nose-down). The anti-roll
+         mount screws tip the camera forward; the OAK floor plane was measured rising ~1.4
+         deg with range (drydock, level chassis) while the model assumed level, so the
+         costmap saw a sloped floor. 0.024 rad flattened it to a +0.17 deg residual (on
+         tile, table in far bins), so +0.17 deg -> 0.027 rad to zero it. Positive pitch =
+         nose-down (parent base_link, +x fwd). The 0.17 deg is within measurement noise
+         (~6 mm/2 m); re-verify with the floor-flatness probe on CLEAN floor (no table
+         ahead) and adjust until slope ~ 0 (flip sign if it worsens). -->
+    <xacro:oakd_joint x="0.023" y="0.01" z="0.030" roll="0" pitch="0.027" yaw="0" mount_point="front_panel"/>
 
 
     <!-- LDLidar configuration - ldlidar must be included before support to define properties -->

@@ -245,7 +245,7 @@ local_costmap:
         scan:
           topic: "/scan" # must have the / prefix
           max_obstacle_height: 1.0
-          clearing: True # Default: False. "True" allows the obstacle layer to clear free space in the costmap based on laser data.
+          clearing: True
           marking: True # allow the obstacle layer to mark obstacles in the costmap.
           data_type: "LaserScan"
           raytrace_max_range: 4.0 # Half or more of maximum lidar data range
@@ -351,7 +351,7 @@ global_costmap:
         scan:
           topic: "/scan" # must have the / prefix
           max_obstacle_height: 1.0
-          clearing: True # Default: False. True allows the obstacle layer to clear free space in the costmap based on laser scan data.
+          clearing: True
           marking: True # Default: True - allows the obstacle layer to mark obstacles in the costmap based on laser scan data.
           data_type: "LaserScan"
           raytrace_max_range: 4.0 # Maximum lidar data range
@@ -388,7 +388,15 @@ global_costmap:
           # 22 cm-tall robot). LOCAL costmap keeps 2 cm for reactive collision
           # avoidance -- its voxel layer + rolling window make ground noise
           # self-clearing there.
-          min_obstacle_height: 0.10
+          # 2026-10-03: 0.10 -> 0.06. The hall-table shelf (0.136-0.156 m) was
+          # straddling the 0.10 gate: with ~3cm downward noise in the floor
+          # solution most shelf returns computed just under 0.10 and were gated
+          # out (tall obstacles marked, low shelf never did). There is a clean
+          # empty band 0.05-0.10 (air gap under the shelf board), so dropping the
+          # gate to 0.06 captures the shelf robustly while staying above floor
+          # noise. Safe now that the OAK pitch fix (2026-10-03) flattened the
+          # floor plane and killed the range-dependent speckle that forced 0.10.
+          min_obstacle_height: 0.06
           max_obstacle_height: 0.31
           raytrace_max_range: 3.0
           raytrace_min_range: 0.20

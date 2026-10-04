@@ -4,7 +4,7 @@
     <xacro:property name="ldlidar_mass" value="0.047"/>
     <xacro:property name="ldlidar_radius" value="0.017645"/>
     <xacro:property name="ldlidar_height" value="0.012"/>
-    <xacro:property name="ldlidar_chassis_height" value="0.0228"/>
+    <xacro:property name="ldlidar_chassis_height" value="0.022"/>
     <xacro:property name="ldlidar_chassis_width" value="0.038"/>
     <xacro:property name="ldlidar_support_height" value="0.0381"/>
     <xacro:property name="ldlidar_offset_x" value="0.04669"/>
@@ -51,7 +51,11 @@
     <joint name="ldlaser_to_base_laser" type="fixed">
         <parent link="ldlaser_frame"/>
         <child link="base_laser"/>
-        <origin xyz="0 0 ${ldlidar_chassis_height + ldlidar_height/2 - 0.0015}" rpy="0 0 0"/>
+        <!-- 2026-10-03: scan plane sits 2mm below the top of the 12mm LD19 body,
+             i.e. 0.010 m above the lidar base, so base + (height - 0.002) = 0.022 + 0.010
+             = 0.032. Full stack to floor now 0.0615+0.0441+0.0381+0.032 = 0.1757 m
+             (measured 0.1755). Was 0.0273 (~8mm low). -->
+        <origin xyz="0 0 ${ldlidar_chassis_height + ldlidar_height - 0.002}" rpy="0 0 0"/>
     </joint>
 
     <link name="base_laser"/>
