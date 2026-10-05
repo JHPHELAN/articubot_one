@@ -56,11 +56,19 @@ Session rituals:
     BNO085 IMU
       it is oriented orthogonal to the robot with x facing the front of the robot
     OAK-D depthcamera
+    ROS2 apt channel: ros2-testing (candidate rtabmap 0.23.13).
+      TODO (user request 2026-10-05): migrate Stingray to the stable ros2 channel.
+      See NOTES-2026-10-05-rtabmap-launch-port-linuxbox-sync.md.
   LinuxBox the laptop
     Ubuntu 24.04
     ROS2 jazzy
     ros2 launch articubot_one joystick.launch.py
     Rviz2
+    IP 192.168.68.99, user ubuntu. From Stormy: ssh linuxbox
+      (key-based, passwordless; NOPASSWD sudo enabled 2026-10-05, /etc/sudoers.d/90-ubuntu-nopasswd).
+    ROS2 apt channel switched stable ros2 -> ros2-testing on 2026-10-05 to match Stormy
+      (rtabmap now 0.23.13; full RTAB-Map stack installed for rtabmap_viz / rviz).
+      A reboot into the new kernel (7.0.0-34) is pending.
   HankRearden the Windows laptop -- user's primary workstation
     Wired to Study Deco via TL-SG108 switch.
     Development / robot access:
