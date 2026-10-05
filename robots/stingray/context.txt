@@ -3,6 +3,43 @@ familiar name Stormy the Stingray
 Raspberry Pi 5b 8GB
 Ubuntu 24.04
 ROS2 jazzy
+Git repositories (2 separate GitHub repos, both owned by JHPHELAN):
+  articubot_one  (git@github.com:JHPHELAN/articubot_one.git)
+    The ROS2 workspace / robot code. Working branch: exploration.
+    Local on Stingray Pi: /home/ubuntu/robot_ws/src/articubot_one
+    THIS context.txt lives here: robots/stingray/context.txt
+    Session notes land here too, e.g. robots/stingray/NOTES-YYYY-MM-DD-*.md
+      (example: NOTES-2026-10-03-low-obstacle-detection.md)
+  stingray  (git@github.com:JHPHELAN/stingray.git)
+    Hardware / build documentation: README.md, images/, BOM, CAD (.cdr).
+    Primarily edited on HankRearden (Windows); photos staged from
+      C:\Users\jhphe\OneDrive\Documents\My Downloads\Robotics\Parallax\Stingray\Photos
+    Local on Stingray Pi: /home/ubuntu/stingray  (branch main)
+Where the AI gets oriented ("memory"):
+  1. This file: robots/stingray/context.txt  (identity, LAN, hardware, rituals)
+  2. Skills library (Pi-local): /home/ubuntu/.copilot/skills
+  3. Prior session notes: articubot_one robots/stingray/NOTES-*.md
+  There is no magic cross-machine AI memory. Orientation travels only via
+  files committed to git (the articubot_one repo) plus the Pi-local skills
+  folder. A fresh Copilot window knows nothing until it reads them.
+HankRearden workspaces (the Windows laptop):
+  - Remote window: VSCode + Remote-SSH into the Stingray Pi. Workspace is
+    /home/ubuntu/robot_ws/... It sees context.txt + skills. This is the usual
+    AI session (e.g. the one that wrote this block).
+  - Local window: plain VSCode on Windows editing C:\...\stingray (the stingray
+    doc repo). It does NOT see context.txt or the skills folder, so its Copilot
+    starts blind. To orient it: open the Remote window instead, or paste/point
+    it at this context.txt, or add a .github/copilot-instructions.md to the
+    stingray repo that points back here (recommended; not yet done).
+Session rituals:
+  Startup  = Read, Recall, Pull
+    Read   this context.txt
+    Recall skills + the latest NOTES-*.md
+    Pull   latest on the repo(s) you will touch (git pull --ff-only)
+  Shutdown = Recap, Remember, Push
+    Recap  what changed and what was learned
+    Remember write it to a NOTES-*.md and update this context.txt
+    Push   commit + push to the correct repo/branch
 3 computers:
   Stingray the robot
     Map coordinate system:
