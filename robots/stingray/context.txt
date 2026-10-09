@@ -159,3 +159,24 @@ Safe recovery sequence after any crash:
   5) Relaunch baseline only:
     source /opt/ros/jazzy/setup.bash && source /home/ubuntu/robot_ws/install/setup.bash && ros2 launch articubot_one stingray.launch.py
   6) Wait 45 seconds and verify no CRC/timeouts before any explorer/autonomy node.
+===============================================================================
+2026-10-09 — LinuxBox on `exploration`; RTAB-Map Gazebo sim (Stingray) wired up
+===============================================================================
+- LinuxBox dev machine now tracks branch `exploration` (was `jp`; jp had no unique
+  commits and is retired). Repo: JHPHELAN/articubot_new (renamed from articubot_one).
+- Stingray runs in Gazebo sim on LinuxBox. Bringup needs TWO sourced terminals:
+    ros2 launch articubot_one drive_sim.launch.py robot_model:=stingray
+    ros2 launch articubot_one rsp.launch.py robot_model:=stingray use_sim_time:=true
+  (drive_sim does NOT start robot_state_publisher by itself.)
+  TODO: add a combined stingray sim bringup launch (rsp + drive_sim).
+- Sim OAK-D now emits depth: co-located gz `depth` sensor in description/oakd.xacro
+  (gz_depth_camera -> /depth_camera via gz_ros_bridge.yaml), same optical frame/FOV/
+  resolution as RGB so depth is registered. Sim RGB-D topics: /camera, /camera_info,
+  /depth_camera. Odom: /odometry/local.
+- Fixed Gazebo mesh resolution: added package-share parent to GZ_SIM_RESOURCE_PATH in
+  launch/drive_sim.launch.py so package://articubot_one/... meshes render in Gazebo.
+- Next: run ported rtabmap.launch.py remapped to sim topics (see
+  NOTES-2026-10-09-rtabmap-sim-stingray-linuxbox.md) with use_sim_time:=true
+  approx_sync:=true, then rtabmap_viz.
+- LinuxBox: Software Updater auto-updates disabled; update manually with apt. Mesa +
+  plotjuggler currently held by Ubuntu phased updates.

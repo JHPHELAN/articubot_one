@@ -72,7 +72,10 @@ def generate_launch_description():
         value=[
             PathJoinSubstitution([FindPackageShare(package_name), 'assets', 'worlds']),
             TextSubstitution(text=':'),
-            PathJoinSubstitution([FindPackageShare(package_name), 'assets'])
+            PathJoinSubstitution([FindPackageShare(package_name), 'assets']),
+            TextSubstitution(text=':'),
+            PathJoinSubstitution([FindPackageShare(package_name), '..'])
+
         ]
     )
 
