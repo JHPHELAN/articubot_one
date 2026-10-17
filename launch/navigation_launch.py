@@ -147,7 +147,7 @@ def generate_launch_description():
                 respawn_delay=2.0,
                 parameters=[configured_params],
                 arguments=['--ros-args', '--log-level', log_level],
-                remappings=remappings + [('cmd_vel', 'cmd_vel_nav'), ('odom', odom_topic)],
+                remappings=remappings + [('cmd_vel', 'cmd_vel_raw'), ('odom', odom_topic)],
             ),
             Node(
                 package='nav2_smoother',
@@ -180,7 +180,7 @@ def generate_launch_description():
                 respawn_delay=2.0,
                 parameters=[configured_params],
                 arguments=['--ros-args', '--log-level', log_level],
-                remappings=remappings + [('cmd_vel', 'cmd_vel_nav'), ('odom', odom_topic)],
+                remappings=remappings + [('cmd_vel', 'cmd_vel_raw'), ('odom', odom_topic)],
             ),
             Node(
                 package='nav2_bt_navigator',
@@ -214,7 +214,7 @@ def generate_launch_description():
                 parameters=[configured_params],
                 arguments=['--ros-args', '--log-level', log_level],
                 remappings=remappings
-                + [('cmd_vel', 'cmd_vel_nav'), ('odom', odom_topic)],
+                + [('cmd_vel', 'cmd_vel_raw'), ('odom', odom_topic)],
             ),
             Node(
                 package='nav2_collision_monitor',
@@ -265,7 +265,7 @@ def generate_launch_description():
                         name='controller_server',
                         parameters=[configured_params],
                         extra_arguments=[{'use_intra_process_comms': True}],
-                        remappings=remappings + [('cmd_vel', 'cmd_vel_nav'), ('odom', odom_topic)],
+                        remappings=remappings + [('cmd_vel', 'cmd_vel_raw'), ('odom', odom_topic)],
                     ),
                     ComposableNode(
                         package='nav2_smoother',
@@ -289,7 +289,7 @@ def generate_launch_description():
                         name='behavior_server',
                         parameters=[configured_params],
                         extra_arguments=[{'use_intra_process_comms': True}],
-                        remappings=remappings + [('cmd_vel', 'cmd_vel_nav'), ('odom', odom_topic)],
+                        remappings=remappings + [('cmd_vel', 'cmd_vel_raw'), ('odom', odom_topic)],
                     ),
                     ComposableNode(
                         package='nav2_bt_navigator',
@@ -314,7 +314,7 @@ def generate_launch_description():
                         parameters=[configured_params],
                         extra_arguments=[{'use_intra_process_comms': True}],
                         remappings=remappings
-                        + [('cmd_vel', 'cmd_vel_nav'), ('odom', odom_topic)],
+                        + [('cmd_vel', 'cmd_vel_raw'), ('odom', odom_topic)],
                     ),
                     ComposableNode(
                         package='nav2_collision_monitor',

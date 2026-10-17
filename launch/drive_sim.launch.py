@@ -1,6 +1,7 @@
+import os
 from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, TextSubstitution
-from launch.actions import DeclareLaunchArgument, LogInfo, IncludeLaunchDescription, GroupAction, RegisterEventHandler, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, LogInfo, IncludeLaunchDescription, GroupAction, RegisterEventHandler, SetEnvironmentVariable, ExecuteProcess
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.event_handlers import OnProcessStart
 from launch_ros.actions import Node
@@ -228,6 +229,7 @@ def generate_launch_description():
     # Launch them all!
 
     return LaunchDescription([
+        ExecuteProcess(cmd=["python3", os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts", "relay_initialpose.py")], name="initialpose_relay", output="screen"),
 
         DeclareLaunchArgument(
             'namespace',

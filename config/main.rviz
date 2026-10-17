@@ -4,18 +4,15 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Global Options1
-        - /TF1
         - /LaserScan1/Topic1
-        - /Battery Status1
-        - /Battery Status1/Topic1
-      Splitter Ratio: 0.5
-    Tree Height: 816
+        - /Image1/Topic1
+      Splitter Ratio: 0.6815789341926575
+    Tree Height: 824
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
     Expanded:
-      - /2D Goal Pose1
+      - /2D Pose Estimate1
       - /Publish Point1
       - /Costmap Cost1
     Name: Tool Properties
@@ -59,31 +56,59 @@ Visualization Manager:
         All Enabled: true
         base_footprint:
           Value: true
+        base_laser:
+          Value: true
         base_link:
           Value: true
-        camera_link:
+        battery_link:
           Value: true
-        camera_link_optical:
+        camera_optical_frame:
+          Value: true
+        camera_rgb_optical_frame:
+          Value: true
+        caster_wheel_link:
           Value: true
         chassis_link:
           Value: true
-        depth_camera_link:
+        estop_button_link:
           Value: true
-        depth_camera_link_optical:
+        estop_shaft_link:
           Value: true
-        gps_link:
+        estop_skirt_link:
           Value: true
         imu_link:
           Value: true
-        laser_frame:
+        ldlaser_frame:
           Value: true
-        sonar_B_L_frame:
+        ldlidar_support_link:
           Value: true
-        sonar_B_R_frame:
+        left_wheel_hub_link:
           Value: true
-        sonar_F_L_frame:
+        left_wheel_link:
           Value: true
-        sonar_F_R_frame:
+        left_wheel_marker_link:
+          Value: true
+        map:
+          Value: true
+        oakd_front_panel:
+          Value: true
+        odom:
+          Value: true
+        right_wheel_hub_link:
+          Value: true
+        right_wheel_link:
+          Value: true
+        right_wheel_marker_link:
+          Value: true
+        speaker_cone_link:
+          Value: true
+        speaker_link:
+          Value: true
+        usb_audio_link:
+          Value: true
+        usb_hub_link:
+          Value: true
+        usb_wifi_antenna_link:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -91,31 +116,52 @@ Visualization Manager:
       Show Axes: false
       Show Names: false
       Tree:
-        base_link:
-          base_footprint:
-            {}
-          chassis_link:
-            camera_link:
-              camera_link_optical:
+        map:
+          odom:
+            base_link:
+              base_footprint:
                 {}
-            depth_camera_link:
-              {}
-            depth_camera_link_optical:
-              {}
-            gps_link:
-              {}
-            imu_link:
-              {}
-            laser_frame:
-              {}
-            sonar_B_L_frame:
-              {}
-            sonar_B_R_frame:
-              {}
-            sonar_F_L_frame:
-              {}
-            sonar_F_R_frame:
-              {}
+              caster_wheel_link:
+                {}
+              chassis_link:
+                battery_link:
+                  {}
+                estop_button_link:
+                  {}
+                estop_shaft_link:
+                  {}
+                estop_skirt_link:
+                  {}
+                imu_link:
+                  {}
+                ldlidar_support_link:
+                  ldlaser_frame:
+                    base_laser:
+                      {}
+                speaker_link:
+                  speaker_cone_link:
+                    {}
+                usb_audio_link:
+                  {}
+                usb_hub_link:
+                  {}
+                usb_wifi_antenna_link:
+                  {}
+              left_wheel_link:
+                left_wheel_hub_link:
+                  {}
+                left_wheel_marker_link:
+                  {}
+              oakd_front_panel:
+                camera_optical_frame:
+                  {}
+                camera_rgb_optical_frame:
+                  {}
+              right_wheel_link:
+                right_wheel_hub_link:
+                  {}
+                right_wheel_marker_link:
+                  {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -141,35 +187,49 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        base_laser:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         base_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        camera_link:
+        battery_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        camera_link_optical:
+        camera_optical_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        camera_rgb_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        caster_wheel_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         chassis_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        depth_camera_link:
+        estop_button_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        depth_camera_link_optical:
+        estop_shaft_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        gps_link:
+          Value: true
+        estop_skirt_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -179,47 +239,72 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        laser_frame:
+        ldlaser_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        left_caster_wheel:
+        ldlidar_support_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        left_wheel:
+        left_wheel_hub_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        right_caster_wheel:
+        left_wheel_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        right_wheel:
+        left_wheel_marker_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        sonar_B_L_frame:
+        oakd_front_panel:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        sonar_B_R_frame:
+        right_wheel_hub_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        sonar_F_L_frame:
+        right_wheel_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        sonar_F_R_frame:
+        right_wheel_marker_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        speaker_cone_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        speaker_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        usb_audio_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        usb_hub_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        usb_wifi_antenna_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -247,14 +332,14 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 0; 255; 0
-      Max Intensity: 6.29824686050415
+      Max Intensity: 11.1695556640625
       Min Color: 255; 0; 0
-      Min Intensity: -2.7682077884674072
+      Min Intensity: -8.790465354919434
       Name: LaserScan
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.05000000074505806
+      Size (m): 0.10000000149011612
       Style: Flat Squares
       Topic:
         Depth: 5
@@ -288,6 +373,7 @@ Visualization Manager:
         "Origin Y ": 0
         Value: false
       Value: false
+      Visualize in UTM Frame: false
       Zoom: 16
     - 2D-visual: false
       Alpha: 1
@@ -388,7 +474,7 @@ Visualization Manager:
           Scale: 1
           Value: true
         Value: false
-      Enabled: true
+      Enabled: false
       Keep: 200
       Name: Odometry_Local
       Position Tolerance: 0.10000000149011612
@@ -409,7 +495,7 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Best Effort
         Value: /odometry/local
-      Value: true
+      Value: false
     - Angle Tolerance: 0.10000000149011612
       Class: rviz_default_plugins/Odometry
       Covariance:
@@ -427,7 +513,7 @@ Visualization Manager:
           Scale: 1
           Value: true
         Value: false
-      Enabled: true
+      Enabled: false
       Keep: 100
       Name: Odometry_Global
       Position Tolerance: 0.10000000149011612
@@ -448,7 +534,7 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Best Effort
         Value: /odometry/global
-      Value: true
+      Value: false
     - Alpha: 0.699999988079071
       Binary representation: false
       Binary threshold: 100
@@ -523,7 +609,7 @@ Visualization Manager:
       Axes Radius: 0.10000000149011612
       Class: rviz_default_plugins/Pose
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Head Length: 0.30000001192092896
       Head Radius: 0.10000000149011612
       Name: Goal Pose
@@ -537,11 +623,11 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Best Effort
         Value: /goal_pose
-      Value: true
+      Value: false
     - Alpha: 1
       Buffer Length: 1
       Class: rviz_default_plugins/Path
-      Color: 152; 106; 68
+      Color: 0; 255; 0
       Enabled: true
       Head Diameter: 0.029999999329447746
       Head Length: 0.20000000298023224
@@ -566,115 +652,6 @@ Visualization Manager:
         Reliability Policy: Best Effort
         Value: /plan
       Value: true
-    - Alpha: 1
-      Class: rviz_default_plugins/Polygon
-      Color: 224; 27; 36
-      Enabled: false
-      Name: Robot Footprint
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        Filter size: 10
-        History Policy: Keep Last
-        Reliability Policy: Best Effort
-        Value: /local_costmap/published_footprint
-      Value: false
-    - Class: rviz_default_plugins/MarkerArray
-      Enabled: true
-      Name: Waypoints
-      Namespaces:
-        {}
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        History Policy: Keep Last
-        Reliability Policy: Best Effort
-        Value: /waypoints
-      Value: true
-    - Alpha: 0.5
-      Buffer Length: 1
-      Class: rviz_default_plugins/Range
-      Color: 255; 255; 255
-      Enabled: false
-      Name: Sonar_B_L
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        Filter size: 10
-        History Policy: Keep Last
-        Reliability Policy: Best Effort
-        Value: /sonar_B_L
-      Value: false
-    - Alpha: 0.5
-      Buffer Length: 1
-      Class: rviz_default_plugins/Range
-      Color: 255; 255; 255
-      Enabled: false
-      Name: Sonar_B_R
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        Filter size: 10
-        History Policy: Keep Last
-        Reliability Policy: Best Effort
-        Value: /sonar_B_R
-      Value: false
-    - Alpha: 0.5
-      Buffer Length: 1
-      Class: rviz_default_plugins/Range
-      Color: 255; 255; 255
-      Enabled: false
-      Name: Sonar_F_L
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        Filter size: 10
-        History Policy: Keep Last
-        Reliability Policy: Best Effort
-        Value: /sonar_F_L
-      Value: false
-    - Alpha: 0.5
-      Buffer Length: 1
-      Class: rviz_default_plugins/Range
-      Color: 255; 255; 255
-      Enabled: false
-      Name: Sonar_F_R
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        Filter size: 10
-        History Policy: Keep Last
-        Reliability Policy: Best Effort
-        Value: /sonar_F_R
-      Value: false
-    - Align Bottom: false
-      Background Alpha: 0.800000011920929
-      Background Color: 0; 0; 0
-      Class: rviz_2d_overlay_plugins/TextOverlay
-      Enabled: true
-      Foreground Alpha: 0.800000011920929
-      Foreground Color: 25; 255; 240
-      Invert Shadow: false
-      Name: Battery Status
-      Overtake BG Color Properties: false
-      Overtake FG Color Properties: false
-      Overtake Position Properties: false
-      Topic:
-        Depth: 5
-        Durability Policy: Volatile
-        History Policy: Keep Last
-        Reliability Policy: Best Effort
-        Value: /battery_display_text
-      Value: true
-      font: DejaVu Sans Mono
-      height: 256
-      hor_alignment: left
-      hor_dist: 0
-      line width: 2
-      text size: 10
-      ver_alignment: top
-      ver_dist: 0
-      width: 128
     - Alpha: 1
       Axes Length: 1
       Axes Radius: 0.10000000149011612
@@ -730,7 +707,7 @@ Visualization Manager:
           Scale: 1
           Value: true
         Value: true
-      Enabled: true
+      Enabled: false
       Head Length: 0.30000001192092896
       Head Radius: 0.10000000149011612
       Name: AMCL Pose
@@ -744,11 +721,11 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /amcl_pose
-      Value: true
+      Value: false
     - Alpha: 1
       Class: nav2_rviz_plugins/ParticleCloud
       Color: 255; 25; 0
-      Enabled: true
+      Enabled: false
       Max Arrow Length: 0.30000001192092896
       Min Arrow Length: 0.019999999552965164
       Name: AMCL Particle Cloud
@@ -760,11 +737,48 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Best Effort
         Value: /particle_cloud
+      Value: false
+    - Alpha: 0.699999988079071
+      Binary representation: false
+      Binary threshold: 100
+      Class: rviz_default_plugins/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: RTAB-Map
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /rtabmap/map
+      Update Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /rtabmap/map_updates
+      Use Timestamp: false
+      Value: true
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /camera
       Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: base_link
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -810,37 +824,37 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 5.3812575340271
+      Distance: 23.12811851501465
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.036640655249357224
-        Y: 0.05260489881038666
-        Z: -0.5262812972068787
+        X: 0.9843634963035583
+        Y: -0.9312334060668945
+        Z: -2.4673895835876465
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5497974157333374
+      Pitch: 1.0697962045669556
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 0.8973817825317383
+      Yaw: 3.1323838233947754
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 995
+  Height: 1003
   Hide Left Dock: false
   Hide Right Dock: false
   Image:
     collapsed: false
   Navigation 2:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000024f00000379fc020000000cfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006f00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000004800000379000000f300fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000c00430061006d00650072006101000002dd000000e80000000000000000fb0000000a0049006d00610067006500000004fd0000015d0000001a00fffffffb000000220053006c0061006d0054006f006f006c0062006f00780050006c007500670069006e000000022a00000247000001dc00fffffffb00000018004e0061007600690067006100740069006f006e00200032000000031f000003e40000022f00ffffff000000010000011e00000365fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000005700000365000000c500fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004420000003efc0100000002fb0000000800540069006d00650100000000000004420000000000000000fb0000000800540069006d00650100000000000004500000000000000000000004e80000037900000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000017e00000381fc020000000dfb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006f00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730200000552000001880000022e00000199fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000004800000381000000f300fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000000c00430061006d00650072006101000002dd000000e80000000000000000fb0000000a0049006d00610067006500000004fd0000015d0000001a00fffffffb000000220053006c0061006d0054006f006f006c0062006f00780050006c007500670069006e000000022a00000247000001dc00fffffffb00000018004e0061007600690067006100740069006f006e00200032000000015d0000026c0000022d00fffffffb0000000a0049006d00610067006501000001bf0000020a0000000000000000000000010000011e00000365fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000005700000365000000c500fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004420000003efc0100000002fb0000000800540069006d00650100000000000004420000000000000000fb0000000800540069006d00650100000000000004500000000000000000000005b90000038100000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   SlamToolboxPlugin:
@@ -850,5 +864,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1854
-  X: 66
-  Y: 48
+  X: 1986
+  Y: 40

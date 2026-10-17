@@ -37,38 +37,78 @@
     </spherical_coordinates>
 
     <gui fullscreen='false'>
-      <plugin name='3D View' filename='GzScene3D'>
-        <ignition-gui>
+      <plugin name='3D View' filename='MinimalScene'>
+        <gz-gui>
           <title>3D View</title>
           <property type='bool' key='showTitleBar'>false</property>
           <property type='string' key='state'>docked</property>
-        </ignition-gui>
+        </gz-gui>
         <engine>ogre2</engine>
         <scene>scene</scene>
         <ambient_light>0.4 0.4 0.4</ambient_light>
         <background_color>0.8 0.8 0.8</background_color>
-        <camera_pose>-3.10 3.81 4.51 0 0.79 -0.89</camera_pose>
+        <!-- camera_pose>-6 0 6 0 0.5 0</camera_pose -->
+        <camera_pose>4.15 3.5 2.0 0 0.3 -2.4</camera_pose>
+        <camera_clip>
+          <near>0.25</near>
+          <far>25000</far>
+        </camera_clip>
+      </plugin>
+      <plugin name='Entity context menu' filename='EntityContextMenuPlugin'>
+        <gz-gui>
+          <property key='state' type='string'>floating</property>
+          <property key='width' type='double'>5</property>
+          <property key='height' type='double'>5</property>
+          <property key='showTitleBar' type='bool'>false</property>
+        </gz-gui>
+      </plugin>
+      <plugin name='Scene Manager' filename='GzSceneManager'>
+        <gz-gui>
+          <property key='resizable' type='bool'>false</property>
+          <property key='width' type='double'>5</property>
+          <property key='height' type='double'>5</property>
+          <property key='state' type='string'>floating</property>
+          <property key='showTitleBar' type='bool'>false</property>
+        </gz-gui>
+      </plugin>
+      <plugin name='Interactive view control' filename='InteractiveViewControl'>
+        <gz-gui>
+          <property key='resizable' type='bool'>false</property>
+          <property key='width' type='double'>5</property>
+          <property key='height' type='double'>5</property>
+          <property key='state' type='string'>floating</property>
+          <property key='showTitleBar' type='bool'>false</property>
+        </gz-gui>
+      </plugin>
+      <plugin name='Camera Tracking' filename='CameraTracking'>
+        <gz-gui>
+          <property key='resizable' type='bool'>false</property>
+          <property key='width' type='double'>5</property>
+          <property key='height' type='double'>5</property>
+          <property key='state' type='string'>floating</property>
+          <property key='showTitleBar' type='bool'>false</property>
+        </gz-gui>
       </plugin>
       <plugin name='World control' filename='WorldControl'>
-        <ignition-gui>
+        <gz-gui>
           <title>World control</title>
           <property type='bool' key='showTitleBar'>false</property>
           <property type='bool' key='resizable'>false</property>
           <property type='double' key='height'>72</property>
-          <property type='double' key='width'>121</property>
           <property type='double' key='z'>1</property>
           <property type='string' key='state'>floating</property>
           <anchors target='3D View'>
             <line own='left' target='left'/>
             <line own='bottom' target='bottom'/>
           </anchors>
-        </ignition-gui>
+        </gz-gui>
         <play_pause>true</play_pause>
         <step>true</step>
         <start_paused>true</start_paused>
+        <use_event>true</use_event>
       </plugin>
       <plugin name='World stats' filename='WorldStats'>
-        <ignition-gui>
+        <gz-gui>
           <title>World stats</title>
           <property type='bool' key='showTitleBar'>false</property>
           <property type='bool' key='resizable'>false</property>
@@ -80,72 +120,11 @@
             <line own='right' target='right'/>
             <line own='bottom' target='bottom'/>
           </anchors>
-        </ignition-gui>
+        </gz-gui>
         <sim_time>true</sim_time>
         <real_time>true</real_time>
         <real_time_factor>true</real_time_factor>
         <iterations>true</iterations>
-      </plugin>
-      <plugin name='Transform control' filename='TransformControl'>
-        <ignition-gui>
-          <property type='bool' key='showTitleBar'>false</property>
-          <property key='x' type='double'>0</property>
-          <property key='y' type='double'>0</property>
-          <property key='width' type='double'>250</property>
-          <property key='height' type='double'>50</property>
-          <property key='state' type='string'>floating</property>
-          <property key='cardBackground' type='string'>#666666</property>
-        </ignition-gui>
-      </plugin>
-      <plugin name='Shapes' filename='Shapes'>
-        <ignition-gui>
-          <property type='bool' key='showTitleBar'>false</property>
-          <property key='x' type='double'>250</property>
-          <property key='y' type='double'>0</property>
-          <property key='width' type='double'>150</property>
-          <property key='height' type='double'>50</property>
-          <property key='state' type='string'>floating</property>
-          <property key='cardBackground' type='string'>#666666</property>
-        </ignition-gui>
-      </plugin>
-      <plugin name='Screenshot' filename='Screenshot'>
-        <ignition-gui>
-          <property type='bool' key='showTitleBar'>false</property>
-          <property key='x' type='double'>400</property>
-          <property key='y' type='double'>0</property>
-          <property key='width' type='double'>50</property>
-          <property key='height' type='double'>50</property>
-          <property key='state' type='string'>floating</property>
-          <property key='cardBackground' type='string'>#666666</property>
-        </ignition-gui>
-      </plugin>
-      <plugin name='Component inspector' filename='ComponentInspector'>
-        <ignition-gui>
-          <property key='x' type='double'>0</property>
-          <property key='y' type='double'>0</property>
-          <property key='width' type='double'>400</property>
-          <property key='height' type='double'>375</property>
-          <property key='state' type='string'>docked_collapsed</property>
-        </ignition-gui>
-      </plugin>
-      <plugin name='Entity tree' filename='EntityTree'>
-        <ignition-gui>
-          <property key='x' type='double'>0</property>
-          <property key='y' type='double'>0</property>
-          <property key='width' type='double'>400</property>
-          <property key='height' type='double'>375</property>
-          <property key='state' type='string'>docked_collapsed</property>
-        </ignition-gui>
-      </plugin>
-      <plugin name='Teleop' filename='Teleop'>
-        <ignition-gui>
-          <property key='x' type='double'>0</property>
-          <property key='y' type='double'>0</property>
-          <property key='width' type='double'>400</property>
-          <property key='height' type='double'>900</property>
-          <property key='state' type='string'>docked</property>
-        </ignition-gui>
-        <topic>/model/tugbot/cmd_vel</topic>
       </plugin>
     </gui>
     <scene>
