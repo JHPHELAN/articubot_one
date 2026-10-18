@@ -68,6 +68,47 @@ and therefore operates entirely in the map coordinate system.
 
 ---
 
+## 1a. Robot-agnostic design (and how to run it)
+
+Notice that everything in section 1 is **generic Nav2 plumbing** -- `/map`, the
+global costmap, the `map -> base_link` TF, and the `NavigateToPose` action. The
+node knows nothing about wheels, motors, sensors, or any particular robot. That
+makes `frontier_explorer_v2.py` **robot-agnostic**: the same node explores any
+robot that brings up SLAM + Nav2.
+
+What *is* robot-specific is the **tuning** -- clearance margins, cost thresholds,
+blacklist radii, speeds -- because those depend on the robot's footprint and the
+space it drives in. So the split is:
+
+- The node lives here, in-tree: [`scripts/frontier_explorer_v2.py`](scripts/frontier_explorer_v2.py).
+- A conservative, robot-neutral default lives at
+  [`config/frontier_explorer.example.yaml`](config/frontier_explorer.example.yaml).
+- Each robot keeps its own tuned copy under `robots/<robot>/config/explore.yaml`
+  -- e.g. Stingray's is
+  [`robots/stingray/config/explore.yaml`](robots/stingray/config/explore.yaml).
+
+Launch it (after the robot stack + Nav2 are up), pointing `params_file` at the
+robot's tuned YAML:
+
+```
+ros2 launch articubot_one explore.launch.py   params_file:=<pkg>/robots/stingray/config/explore.yaml
+```
+
+`params_file` defaults to the example YAML, and the knobs you flip most often
+(`dry_run`, `goal_max_cost`, `min_clearance_m`, ...) can be overridden on the
+command line.
+
+> **Why this note exists.** The node started in-tree, was briefly split into a
+> standalone `frontier_explorer` package when tuning moved to YAML (commit
+> `247e69c`), which quietly broke this README's links and kept the code off
+> GitHub. It now lives back in `articubot_one` on the `exploration` branch so the
+> links resolve and the explorer travels with the repo. Per-robot tuning staying
+> in `robots/<robot>/config/` is the robot-agnostic half of that split, kept on
+> purpose.
+
+---
+
+
 ## 2. What is a "frontier"?
 
 The key idea is:
