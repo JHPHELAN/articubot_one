@@ -26,9 +26,9 @@ class FrontierCandidate:
     score: float
 
 
-class FrontierExplorerV2(Node):
+class FrontierExplorer(Node):
     def __init__(self) -> None:
-        super().__init__("frontier_explorer_v2")
+        super().__init__("frontier_explorer")
 
         # Safety-first default: evaluate and log candidates only.
         self.declare_parameter("dry_run", True)
@@ -713,7 +713,7 @@ class FrontierExplorerV2(Node):
 
 def main() -> None:
     rclpy.init()
-    node = FrontierExplorerV2()
+    node = FrontierExplorer()
     try:
         node.run()
     except KeyboardInterrupt:

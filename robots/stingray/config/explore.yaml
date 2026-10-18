@@ -1,9 +1,9 @@
 # =====================================================================
-# frontier_explorer_v2 parameters -- Stingray (Stormy) tuning
+# frontier_explorer parameters -- Stingray (Stormy) tuning
 # =====================================================================
 # Consumed by the generic `frontier_explorer` package's explore.launch.py
 # via `params_file:=<this file>`. The node itself lives at
-#   ~/robot_ws/src/frontier_explorer/scripts/frontier_explorer_v2.py
+#   ~/robot_ws/src/frontier_explorer/scripts/frontier_explorer.py
 # and its shipped example defaults are at
 #   ~/robot_ws/src/frontier_explorer/config/frontier_explorer.example.yaml
 #
@@ -30,7 +30,7 @@
 # before you loosen min_clearance_m.
 # =====================================================================
 
-frontier_explorer_v2:
+frontier_explorer:
   ros__parameters:
 
     # -----------------------------------------------------------------

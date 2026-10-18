@@ -13,7 +13,7 @@
 #         record_explore params_file:=/path/to/my.yaml dry_run:=true
 #   * Tees the explorer's stdout+stderr to explorer.log in the run dir.
 #   * ~10 s after launch, snapshots the live parameters via
-#     `ros2 param dump /frontier_explorer_v2`.
+#     `ros2 param dump /frontier_explorer`.
 #   * On Ctrl-C, stops the bag cleanly (SIGINT + wait) before exit.
 #
 # No cameras are recorded — this is exploration telemetry only, and
@@ -138,7 +138,7 @@ sleep 2
 # so we don't hold up the foreground launch.
 (
     sleep 10
-    ros2 param dump /frontier_explorer_v2 > "$NOTES_DIR/params_live.yaml" 2>/dev/null || true
+    ros2 param dump /frontier_explorer > "$NOTES_DIR/params_live.yaml" 2>/dev/null || true
 ) &
 PARAM_DUMP_PID=$!
 

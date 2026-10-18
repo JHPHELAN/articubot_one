@@ -1,5 +1,5 @@
 # =====================================================================
-# frontier_explorer_v2 parameters -- example / bootstrap config
+# frontier_explorer parameters -- example / bootstrap config
 # =====================================================================
 # Loaded by launch/explore.launch.py as the default when no other
 # params_file is passed. This file is deliberately CONSERVATIVE: the
@@ -21,7 +21,7 @@
 #   D. Timing / recovery / loop plumbing (rarely change).
 #
 # Values shown here match the safe defaults declared in
-# scripts/frontier_explorer_v2.py. The inline tuning-history comments
+# scripts/frontier_explorer.py. The inline tuning-history comments
 # describe HOW ONE PARTICULAR ROBOT (JHPHELAN's Raspberry-Pi differential-
 # drive "Stingray") ended up at its own tuned values. Read them as a
 # worked example, NOT as prescriptions -- your robot's footprint, sensor
@@ -35,7 +35,7 @@
 # 90 -> 95) before you loosen min_clearance_m.
 # =====================================================================
 
-frontier_explorer_v2:
+frontier_explorer:
   ros__parameters:
 
     # -----------------------------------------------------------------

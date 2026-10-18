@@ -1,9 +1,9 @@
-# `frontier_explorer_v2.py` — Frontier-Based Autonomous Exploration for Nav2
+# `frontier_explorer.py` — Frontier-Based Autonomous Exploration for Nav2
 
 This README describes the autonomous exploration node used on the `exploration`
 branch:
 
-- [`scripts/frontier_explorer_v2.py`](scripts/frontier_explorer_v2.py)
+- [`scripts/frontier_explorer.py`](scripts/frontier_explorer.py)
 
 The explanation below was written by **ChatGPT** (via Sergei Grachine of the
 HomeBrew Robotics Club) as an answer to Michael Wimble's question about how the
@@ -73,14 +73,14 @@ and therefore operates entirely in the map coordinate system.
 Notice that everything in section 1 is **generic Nav2 plumbing** -- `/map`, the
 global costmap, the `map -> base_link` TF, and the `NavigateToPose` action. The
 node knows nothing about wheels, motors, sensors, or any particular robot. That
-makes `frontier_explorer_v2.py` **robot-agnostic**: the same node explores any
+makes `frontier_explorer.py` **robot-agnostic**: the same node explores any
 robot that brings up SLAM + Nav2.
 
 What *is* robot-specific is the **tuning** -- clearance margins, cost thresholds,
 blacklist radii, speeds -- because those depend on the robot's footprint and the
 space it drives in. So the split is:
 
-- The node lives here, in-tree: [`scripts/frontier_explorer_v2.py`](scripts/frontier_explorer_v2.py).
+- The node lives here, in-tree: [`scripts/frontier_explorer.py`](scripts/frontier_explorer.py).
 - A conservative, robot-neutral default lives at
   [`config/frontier_explorer.example.yaml`](config/frontier_explorer.example.yaml).
 - Each robot keeps its own tuned copy under `robots/<robot>/config/explore.yaml`
@@ -476,7 +476,7 @@ So this node does not drive the robot itself. It is a **high-level
 exploration planner**. The division of labor is:
 
 ```
-                frontier_explorer_v2
+                frontier_explorer
                          │
                          │ "Go explore here"
                          ▼
@@ -685,7 +685,7 @@ Explanation authored by **ChatGPT** (OpenAI), shared by Sergei Grachine of
 the [HomeBrew Robotics Club](https://www.hbrobotics.org/) and published here
 in response to a question from Michael Wimble at an HBRC Zoom meeting on
 2026-09-01. The code being described lives at
-[`scripts/frontier_explorer_v2.py`](scripts/frontier_explorer_v2.py) on this
+[`scripts/frontier_explorer.py`](scripts/frontier_explorer.py) on this
 branch and was written with the help of GitHub Copilot (Claude) working with
 JHPHELAN.
 

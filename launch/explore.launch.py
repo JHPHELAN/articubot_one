@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Standalone launcher for the frontier explorer (frontier_explorer_v2.py).
+# Standalone launcher for the frontier explorer (frontier_explorer.py).
 # Assumes the robot's main stack is already running and Nav2 is active.
 # Parameters default to this package's conservative example YAML at
 #   frontier_explorer/config/frontier_explorer.example.yaml
@@ -26,7 +26,7 @@ def generate_launch_description():
     params_file_arg = DeclareLaunchArgument(
         'params_file',
         default_value=default_params,
-        description='YAML parameter file for frontier_explorer_v2.',
+        description='YAML parameter file for frontier_explorer.',
     )
 
     # Convenience overrides for the values we flip most often. Each is optional;
@@ -95,16 +95,16 @@ def generate_launch_description():
 
         return [Node(
             package='articubot_one',
-            executable='frontier_explorer_v2.py',
-            # NOTE: intentionally NOT setting name='frontier_explorer_v2' here.
+            executable='frontier_explorer.py',
+            # NOTE: intentionally NOT setting name='frontier_explorer' here.
             # ros2 launch translates `name=` into a global `-r __node:=X` remap,
             # which rclpy applies to EVERY Node in the process — including the
             # internal BasicNavigator (default name 'basic_navigator') created
             # by nav2_simple_commander. That collision produced the
-            #   "Publisher already registered for node name: 'frontier_explorer_v2'"
+            #   "Publisher already registered for node name: 'frontier_explorer'"
             # rcl.logging_rosout warning. The script self-names via
-            # super().__init__("frontier_explorer_v2"), so the params YAML
-            # (`frontier_explorer_v2:` key) still matches.
+            # super().__init__("frontier_explorer"), so the params YAML
+            # (`frontier_explorer:` key) still matches.
             output='screen',
             emulate_tty=True,
             parameters=params,
