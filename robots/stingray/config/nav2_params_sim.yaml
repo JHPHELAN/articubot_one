@@ -16,7 +16,7 @@ bt_navigator:
     #odom_topic: /odometry/global  # works
     #odom_topic: /odometry/filtered  # Addison recommended, here is one of the remapped - likely /odometry/local
     #odom_topic: /diff_cont/odom   # works, but probably the worst of odom topics
-    bt_loop_duration: 20 # Reduced for quicker decision-making
+    bt_loop_duration: 20 # ms; raised 5->20 (2026-10-17) to tolerate slow sim RTF, fewer missed BT loops
     default_server_timeout: 250
     wait_for_service_timeout: 1000  # ms, during initialization
     #action_server_result_timeout: 900.0 # timeout value for action servers to discard a goal handle if a result hasn’t been produced.
@@ -59,7 +59,7 @@ bt_navigator:
 controller_server:
   ros__parameters:
     enable_stamped_cmd_vel: true
-    controller_frequency: 5.0 # Was 5.0 - increased for finer heading control at goal
+    controller_frequency: 5.0 # Hz; lowered 10.0->5.0 (2026-10-17) for slow sim, avoids control-loop-missed-10Hz errors
     costmap_update_timeout: 0.50
     #odom_topic: /diff_cont/odom   # works, but probably the worst of odom topics
     odom_topic: /odometry/local   # works
