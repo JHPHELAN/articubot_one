@@ -59,7 +59,7 @@ bt_navigator:
 controller_server:
   ros__parameters:
     enable_stamped_cmd_vel: true
-    controller_frequency: 5.0 # Hz; lowered 10.0->5.0 (2026-10-17) for slow sim, avoids control-loop-missed-10Hz errors
+    controller_frequency: 3.0 # Hz; lowered 5.0->3.0 (2026-10-18) for headless house sim at ~0.22 RTF (5 Hz starved the control loop)
     costmap_update_timeout: 0.50
     #odom_topic: /diff_cont/odom   # works, but probably the worst of odom topics
     odom_topic: /odometry/local   # works
@@ -96,7 +96,7 @@ controller_server:
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController"
       time_steps: 50
-      model_dt: 0.2 # Was 0.1. Horizon = 40*0.2*0.2 = 1.6m at full speed. Sees THROUGH doorways to free space beyond.
+      model_dt: 0.34 # 2026-10-18: raised 0.2->0.34 so controller period (1/3.0=0.333s) <= model_dt (MPPI requires period<=model_dt); paired with controller_frequency 3.0
       batch_size: 1000 # Default.
       ax_max: 1.0
       ax_min: -1.0
@@ -428,7 +428,7 @@ planner_server:
       plugin: "nav2_navfn_planner::NavfnPlanner"
       tolerance: 0.15 # Default: 0.5 meters. A tolerance around the goal.
       use_astar: false # False means the default Dijkstra’s algorithm.
-      allow_unknown: false # Stay on known free space — don't shortcut through unmapped areas.
+      allow_unknown: true # 2026-10-18: frontier exploration needs to plan toward goals at the known/unknown boundary; false starved the explorer.
 
 # see https://docs.nav2.org/configuration/packages/configuring-smoother-server.html
 smoother_server:

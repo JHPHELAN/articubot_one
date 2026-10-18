@@ -184,7 +184,13 @@ def generate_launch_description():
             LaunchConfiguration("delete_db_on_start"),
             "'.lower() == 'true' else '') + '''",
             LaunchConfiguration("rtabmap_args"),
-            "'''",
+            # 2026-10-18 PERMANENT 2D-lock: always append Force3DoF/Slam2D AFTER the
+            # user's rtabmap_args so a custom args string can't silently drop it (this
+            # was the recurring root cause of 6-DOF z-drift that broke Nav2 localization;
+            # Force3DoF was only ever set transiently on the CLI, never persisted).
+            # Stingray is a diff-drive ground robot, so 2D is always correct. Later args
+            # win in RTAB-Map's parser, so this overrides any earlier Reg/Force3DoF.
+            " --Reg/Force3DoF true --Optimizer/Slam2D true"+"'''",
         ]
     )
 

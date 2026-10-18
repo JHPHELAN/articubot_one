@@ -97,7 +97,8 @@ def generate_launch_description():
             ('gz_args', [LaunchConfiguration('world'),
                 '.sdf',
                 ' -v 4',
-                ' -r']
+                ' -r',
+                ' -s']  # 2026-10-18: -s = server-only (headless); gz GUI never renders the robot here and we monitor in RViz, so skip GUI render load to raise RTF
             )
         ]
     )
