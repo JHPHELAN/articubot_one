@@ -17,3 +17,7 @@ assets/maps/archive_bad/
 /robots/stingray/OBSOLETE/
 # Date-marker index extracted from the WordPerfect Stingray Experience log (scratch)
 /robots/stingray/date_index.txt
+
+# AWS Small House World models (~106 MB meshes/textures) - fetched, not committed.
+# Regenerate with scripts/fetch_small_house_world.py (see notes 2026-10-18).
+/assets/models/aws_robomaker_residential_*

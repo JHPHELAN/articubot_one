@@ -75,6 +75,8 @@ def generate_launch_description():
             TextSubstitution(text=':'),
             PathJoinSubstitution([FindPackageShare(package_name), 'assets']),
             TextSubstitution(text=':'),
+            PathJoinSubstitution([FindPackageShare(package_name), 'assets', 'models']),
+            TextSubstitution(text=':'),
             PathJoinSubstitution([FindPackageShare(package_name), '..'])
 
         ]
