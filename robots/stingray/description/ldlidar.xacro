@@ -67,8 +67,8 @@
             <visualize>true</visualize>
             <update_rate>10</update_rate>
             <topic>gz_scan</topic>
-            <gz_frame_id>laser_frame</gz_frame_id>
-            <frame_id>laser_frame</frame_id>
+            <gz_frame_id>ldlaser_frame</gz_frame_id>
+            <frame_id>ldlaser_frame</frame_id>
             <ray> 
                 <scan>
                     <horizontal>

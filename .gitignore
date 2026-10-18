@@ -15,3 +15,5 @@ assets/maps/Stormy_merged_v*.png
 assets/maps/Stormy_merged_v*.yaml
 assets/maps/archive_bad/
 /robots/stingray/OBSOLETE/
+# Date-marker index extracted from the WordPerfect Stingray Experience log (scratch)
+/robots/stingray/date_index.txt

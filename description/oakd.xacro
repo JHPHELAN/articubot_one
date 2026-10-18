@@ -136,14 +136,14 @@
       <sensor name='oakd_rgb_${mount_point}' type='camera'>
         <always_on>true</always_on>
         <topic>gz_camera</topic>
-        <update_rate>30</update_rate>
+        <update_rate>15</update_rate>
         <visualize>true</visualize>
         <enable_metrics>false</enable_metrics>
         <camera name='__default__'>
           <horizontal_fov>1.3962634</horizontal_fov>
           <image>
-            <width>800</width>
-            <height>800</height>
+            <width>200</width>
+            <height>200</height>
             <format>RGB_INT8</format>
           </image>
           <camera_info_topic>gz_camera_info</camera_info_topic>
@@ -165,14 +165,14 @@
       <sensor name='oakd_depth_${mount_point}' type='depth'>
         <always_on>true</always_on>
         <topic>gz_depth_camera</topic>
-        <update_rate>30</update_rate>
+        <update_rate>15</update_rate>
         <visualize>false</visualize>
         <enable_metrics>false</enable_metrics>
         <camera name='__default__'>
           <horizontal_fov>1.3962634</horizontal_fov>
           <image>
-            <width>800</width>
-            <height>800</height>
+            <width>200</width>
+            <height>200</height>
             <format>R_FLOAT32</format>
           </image>
           <clip>
