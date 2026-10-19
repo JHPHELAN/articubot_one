@@ -34,7 +34,7 @@ frontier_explorer:
   ros__parameters:
     # 2026-10-18: sim runs at ~0.09 RTF; without sim time the wall-clock
     # goal_timeout fires after only ~12 s of robot motion -> every goal times out.
-    use_sim_time: true
+    use_sim_time: false
 
     # -----------------------------------------------------------------
     # GROUP A -- Operating mode and safety-critical filters
@@ -199,7 +199,7 @@ frontier_explorer:
     loop_hz: 0.33
 
     # Cancel and re-plan if a single goal takes longer than this (s).
-    goal_timeout_sec: 180.0  # 2026-10-18: sim-seconds (use_sim_time true); headroom for slow-RTF drives
+    goal_timeout_sec: 60.0  # 2026-10-18: sim-seconds (use_sim_time true); headroom for slow-RTF drives
 
     # Consecutive tick cycles with zero path-feasible candidates before
     # the recovery mechanism (clear costmaps, forget failed goals)
