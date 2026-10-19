@@ -120,6 +120,21 @@ def generate_launch_description():
             description="Sensor input QoS: 0 system, 1 reliable, 2 best effort.",
         ),
         DeclareLaunchArgument(
+            "compressed",
+            default_value="false",
+            description="Subscribe to compressed image transports (saves WiFi for a remote RTAB-Map). rtabmap_launch republishes to raw locally.",
+        ),
+        DeclareLaunchArgument(
+            "rgb_image_transport",
+            default_value="compressed",
+            description="RGB transport to pull when compressed:=true (e.g. compressed, theora).",
+        ),
+        DeclareLaunchArgument(
+            "depth_image_transport",
+            default_value="compressedDepth",
+            description="Depth transport to pull when compressed:=true (compressedDepth).",
+        ),
+        DeclareLaunchArgument(
             "topic_queue_size",
             default_value="10",
             description="Subscriber queue size.",
@@ -224,6 +239,9 @@ def generate_launch_description():
                 "approx_sync_max_interval"
             ),
             "qos": LaunchConfiguration("qos"),
+            "compressed": LaunchConfiguration("compressed"),
+            "rgb_image_transport": LaunchConfiguration("rgb_image_transport"),
+            "depth_image_transport": LaunchConfiguration("depth_image_transport"),
             "topic_queue_size": LaunchConfiguration("topic_queue_size"),
             "sync_queue_size": LaunchConfiguration("sync_queue_size"),
             "rtabmap_viz": LaunchConfiguration("rtabmap_viz"),
