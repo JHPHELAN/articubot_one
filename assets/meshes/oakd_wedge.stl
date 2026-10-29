@@ -1,0 +1,86 @@
+solid oakd_wedge
+  facet normal -0.000000e+00 1.000000e+00 -0.000000e+00
+    outer loop
+      vertex 0.000000e+00 2.500000e-02 -2.250000e-02
+      vertex 4.000000e-03 2.500000e-02 2.250000e-02
+      vertex 2.498384e-02 2.500000e-02 -2.250000e-02
+    endloop
+  endfacet
+  facet normal -0.000000e+00 1.000000e+00 -0.000000e+00
+    outer loop
+      vertex 0.000000e+00 2.500000e-02 -2.250000e-02
+      vertex 0.000000e+00 2.500000e-02 2.250000e-02
+      vertex 4.000000e-03 2.500000e-02 2.250000e-02
+    endloop
+  endfacet
+  facet normal 0.000000e+00 -1.000000e+00 0.000000e+00
+    outer loop
+      vertex 0.000000e+00 -2.500000e-02 -2.250000e-02
+      vertex 2.498384e-02 -2.500000e-02 -2.250000e-02
+      vertex 4.000000e-03 -2.500000e-02 2.250000e-02
+    endloop
+  endfacet
+  facet normal 0.000000e+00 -1.000000e+00 0.000000e+00
+    outer loop
+      vertex 0.000000e+00 -2.500000e-02 -2.250000e-02
+      vertex 4.000000e-03 -2.500000e-02 2.250000e-02
+      vertex 0.000000e+00 -2.500000e-02 2.250000e-02
+    endloop
+  endfacet
+  facet normal 0.000000e+00 0.000000e+00 -1.000000e+00
+    outer loop
+      vertex 0.000000e+00 2.500000e-02 -2.250000e-02
+      vertex 2.498384e-02 2.500000e-02 -2.250000e-02
+      vertex 2.498384e-02 -2.500000e-02 -2.250000e-02
+    endloop
+  endfacet
+  facet normal 0.000000e+00 0.000000e+00 -1.000000e+00
+    outer loop
+      vertex 0.000000e+00 2.500000e-02 -2.250000e-02
+      vertex 2.498384e-02 -2.500000e-02 -2.250000e-02
+      vertex 0.000000e+00 -2.500000e-02 -2.250000e-02
+    endloop
+  endfacet
+  facet normal 9.063078e-01 0.000000e+00 4.226183e-01
+    outer loop
+      vertex 2.498384e-02 2.500000e-02 -2.250000e-02
+      vertex 4.000000e-03 2.500000e-02 2.250000e-02
+      vertex 4.000000e-03 -2.500000e-02 2.250000e-02
+    endloop
+  endfacet
+  facet normal 9.063078e-01 0.000000e+00 4.226183e-01
+    outer loop
+      vertex 2.498384e-02 2.500000e-02 -2.250000e-02
+      vertex 4.000000e-03 -2.500000e-02 2.250000e-02
+      vertex 2.498384e-02 -2.500000e-02 -2.250000e-02
+    endloop
+  endfacet
+  facet normal 0.000000e+00 0.000000e+00 1.000000e+00
+    outer loop
+      vertex 4.000000e-03 2.500000e-02 2.250000e-02
+      vertex 0.000000e+00 2.500000e-02 2.250000e-02
+      vertex 0.000000e+00 -2.500000e-02 2.250000e-02
+    endloop
+  endfacet
+  facet normal 0.000000e+00 0.000000e+00 1.000000e+00
+    outer loop
+      vertex 4.000000e-03 2.500000e-02 2.250000e-02
+      vertex 0.000000e+00 -2.500000e-02 2.250000e-02
+      vertex 4.000000e-03 -2.500000e-02 2.250000e-02
+    endloop
+  endfacet
+  facet normal -1.000000e+00 0.000000e+00 -0.000000e+00
+    outer loop
+      vertex 0.000000e+00 2.500000e-02 2.250000e-02
+      vertex 0.000000e+00 2.500000e-02 -2.250000e-02
+      vertex 0.000000e+00 -2.500000e-02 -2.250000e-02
+    endloop
+  endfacet
+  facet normal -1.000000e+00 -0.000000e+00 0.000000e+00
+    outer loop
+      vertex 0.000000e+00 2.500000e-02 2.250000e-02
+      vertex 0.000000e+00 -2.500000e-02 -2.250000e-02
+      vertex 0.000000e+00 -2.500000e-02 2.250000e-02
+    endloop
+  endfacet
+endsolid oakd_wedge

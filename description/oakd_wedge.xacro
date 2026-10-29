@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+
+<!-- OAK-D tilt wedge: inserts between the chassis front plate and the OAK-D.
+     Geometry source: CAD/wedge.py (oakd_tilt_wedge_25deg). The flat robot-
+     facing face sits centered in y and z on the chassis front plate; the OAK-D
+     back presses on the 25 deg camera face, tilting the camera up by half the
+     stereo-depth V-FOV. Simplified visual mesh (body only, no counterbore /
+     inserts / nubs) is assets/meshes/oakd_wedge.stl, authored in THIS link
+     frame, in meters:
+       origin = center of the flat robot-facing face
+       x = forward (away from robot)   y = left   z = up  -->
+<robot name="oakd_wedge" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:macro name="oakd_wedge" params="parent mount_point">
+
+    <!-- geometry constants (meters / radians) -->
+    <xacro:property name="wedge_tilt"       value="0.4363323"/>  <!-- 25 deg -->
+    <xacro:property name="wedge_mass"       value="0.04"/>
+    <xacro:property name="wedge_base_depth" value="0.024984"/>   <!-- bottom X thickness -->
+    <xacro:property name="wedge_width"      value="0.050"/>
+    <xacro:property name="wedge_height"     value="0.045"/>
+
+    <!-- OAK-D mount offset in the wedge-link frame.  The tripod hole on the
+         camera face is at (0.016109, 0, -0.003468).  Optical center =
+         tripod + 0.033 m along the face normal n=(0.9063,0,0.4226)   (OAK-D
+         depth, back face -> front optical center) + 0.018 m along the face
+         up-slope uhat=(-0.4226,0,0.9063)   (42.5 mm optical height minus
+         24.5 mm tripod height above the OAK-D bottom). -->
+    <xacro:property name="oakd_mount_x" value="0.03841"/>
+    <xacro:property name="oakd_mount_y" value="0.0"/>
+    <xacro:property name="oakd_mount_z" value="0.02679"/>
+
+    <!-- WEDGE LINK: origin at the center of the flat robot-facing face -->
+    <link name="oakd_wedge_${mount_point}">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <mesh filename="package://articubot_one/assets/meshes/oakd_wedge.stl"/>
+        </geometry>
+        <material name="gray"/>
+      </visual>
+      <collision>
+        <origin rpy="0 0 0" xyz="${wedge_base_depth/2} 0 0"/>
+        <geometry>
+          <box size="${wedge_base_depth} ${wedge_width} ${wedge_height}"/>
+        </geometry>
+      </collision>
+      <xacro:inertial_box mass="${wedge_mass}"
+          x="${wedge_base_depth}" y="${wedge_width}" z="${wedge_height}">
+        <origin xyz="${wedge_base_depth/2} 0 0" rpy="0 0 0"/>
+      </xacro:inertial_box>
+    </link>
+
+    <!-- parent (front plate) -> wedge: flat face centered y/z on the front
+         plate, front_panel_offset ahead of base_link -->
+    <joint name="oakd_wedge_joint_${mount_point}" type="fixed">
+      <origin rpy="0 0 0" xyz="${front_panel_offset} 0 0"/>
+      <parent link="${parent}"/>
+      <child link="oakd_wedge_${mount_point}"/>
+    </joint>
+
+    <!-- wedge -> OAK-D optical center: tilt the camera up a pure 25 deg
+         (negative pitch = nose-up).  Replaces the old base_link->oakd joint,
+         which carried a ~1.5 deg (0.027 rad) nose-down floor-flatness cal;
+         that cal was intentionally dropped for the physical 25 deg wedge
+         (re-verify floor flatness and re-add a small residual if needed). -->
+    <joint name="oakd_joint_${mount_point}" type="fixed">
+      <origin rpy="0 ${-wedge_tilt} 0" xyz="${oakd_mount_x} ${oakd_mount_y} ${oakd_mount_z}"/>
+      <parent link="oakd_wedge_${mount_point}"/>
+      <child link="oakd_${mount_point}"/>
+    </joint>
+
+    <!-- RViz color is the <material> above; give Gazebo a matching material
+         and keep the fixed joints unlumped so their TF frames persist. -->
+    <gazebo reference="oakd_wedge_${mount_point}">
+      <material>Gazebo/Grey</material>
+    </gazebo>
+    <gazebo reference="oakd_wedge_joint_${mount_point}">
+      <preserveFixedJoint>true</preserveFixedJoint>
+    </gazebo>
+    <gazebo reference="oakd_joint_${mount_point}">
+      <preserveFixedJoint>true</preserveFixedJoint>
+    </gazebo>
+
+  </xacro:macro>
+</robot>

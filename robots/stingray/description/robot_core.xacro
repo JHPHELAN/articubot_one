@@ -1,5 +1,8 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-
+<!--
+Defines the robot chassis and wheels for the Stingray robot
+additional components like sensors and actuators are in robot.urdf.xacro
+-->
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
     <xacro:property name="oakd_x_length" value="0.033"/>
