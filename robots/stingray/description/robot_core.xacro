@@ -5,7 +5,11 @@ additional components like sensors and actuators are in robot.urdf.xacro
 -->
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
-    <xacro:property name="oakd_x_length" value="0.033"/>
+    <!-- Forward overhang of the wedge-tilted OAK-D past the chassis front.
+         25 deg up-tilt swings the OAK-D bottom-front corner to x=0.1457 in
+         base_link; chassis-front term here is 0.0875, so overhang = 0.0582.
+         Was 0.033 (flat OAK-D) before the 2026-10-28 wedge. -->
+    <xacro:property name="oakd_x_length" value="0.0582"/>
 
     <!-- BASE LINK -->
     <link name="base_link">
