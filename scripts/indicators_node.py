@@ -127,6 +127,7 @@ class IndicatorsNode(Node):
         self.declare_parameter('beacon_linger_sec', 2.0)
 
         self.declare_parameter('headlights_startup_on_sec', 3.0)
+        self.declare_parameter('beacon_startup_on_sec', 3.0)
         self.declare_parameter('mock_gpio', False)
 
         # Nav2 trouble alert
@@ -179,6 +180,7 @@ class IndicatorsNode(Node):
         self._linger = float(gp('beacon_linger_sec').value)
 
         self._startup_on = float(gp('headlights_startup_on_sec').value)
+        self._beacon_startup_on = float(gp('beacon_startup_on_sec').value)
         self._mock = bool(gp('mock_gpio').value) or not GPIO_AVAILABLE
 
         self._alert_sound_path = str(gp('alert_sound_path').value)
@@ -420,7 +422,19 @@ class IndicatorsNode(Node):
                 self._startup_on = 0.0  # disable further auto-off
                 self.get_logger().info('Boot running-light period ended; headlights OFF.')
 
-        beacon_should_be_on = self._beacon_manual
+        # Beacon self-test during the boot window (one-shot), mirroring the
+        # headlights running-light test: blink the amber LED and play the
+        # beacon WAV (klingon_alert.wav) once, regardless of the sound toggle.
+        beacon_startup_active = False
+        if self._beacon_startup_on > 0.0:
+            age = (now - self._start_time).nanoseconds * 1e-9
+            if age < self._beacon_startup_on:
+                beacon_startup_active = True
+            else:
+                self._beacon_startup_on = 0.0
+                self.get_logger().info('Boot beacon self-test ended; beacon OFF.')
+
+        beacon_should_be_on = self._beacon_manual or beacon_startup_active
         if not beacon_should_be_on and self._last_motion_time is not None:
             age = (now - self._last_motion_time).nanoseconds * 1e-9
             if age <= self._linger:
@@ -448,8 +462,9 @@ class IndicatorsNode(Node):
                     self._led_phase_time = now
                     self._apply_beacon_outputs()
 
-            # Periodic WAV playback via aplay.
-            self._maybe_play_sound(now)
+            # Periodic WAV playback via aplay (forced during the boot self-test
+            # so the klingon_alert clip sounds even when beacon sound is off).
+            self._maybe_play_sound(now, force=beacon_startup_active)
         else:
             # Reap any finished aplay process when beacon is idle.
             if self._sound_proc is not None and self._sound_proc.poll() is not None:
@@ -481,8 +496,8 @@ class IndicatorsNode(Node):
             else:
                 self._bn.off()
 
-    def _maybe_play_sound(self, now) -> None:
-        if not self._sound_enabled:
+    def _maybe_play_sound(self, now, force=False) -> None:
+        if not force and not self._sound_enabled:
             return
         if self._aplay_path is None or not os.path.isfile(self._sound_path):
             return

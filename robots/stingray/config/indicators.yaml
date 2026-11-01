@@ -39,6 +39,7 @@ indicators_node:
     # robot has a brief visible "I'm awake" cue during boot.
     # Set to 0.0 to skip the running-light behavior and start with bulbs OFF.
     headlights_startup_on_sec: 3.0
+    beacon_startup_on_sec: 3.0      # boot beacon self-test: blink amber + play klingon_alert.wav once
 
     # Nav2 trouble alert (plays danger.wav when Stormy is actually stuck).
     #
