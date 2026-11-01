@@ -39,15 +39,16 @@
     <!-- OAK-D Camera -->
     <!-- <xacro:include filename="$(find articubot_one)/robots/stingray/description/oakd.xacro" /> -->
     <xacro:include filename="$(find articubot_one)/description/oakd.xacro" />
-    <xacro:include filename="$(find articubot_one)/description/oakd_wedge.xacro" />
     <xacro:oakd_link mount_point="front_panel"/>
-    <!-- 2026-10-28: OAK-D now rides a 3D-printed 25 deg tilt wedge (CAD/wedge.py).
-         The wedge inserts between the chassis front plate and the OAK-D and tilts
-         the camera up a pure 25 deg.  This REPLACES the old hand-tuned
-         base_link->oakd joint (x=0.023 y=0.01 z=0.030 pitch=0.027 rad ~1.55 deg
-         nose-down floor-flatness cal); the cal was dropped for the physical wedge.
-         Re-verify floor flatness and re-add a small residual pitch if needed. -->
-    <xacro:oakd_wedge parent="base_link" mount_point="front_panel"/>
+    <!-- 2026-11-01: the 25 deg tilt wedge was REMOVED; the OAK-D now bolts flat
+         directly to the chassis front plate.  Geometry: depth min range ~0.20 m and
+         depth V-FOV 50 deg put the bottom-edge ray 25 deg below the (now horizontal)
+         optical axis; 0.20*sin(25) = 0.085 m drop ~= the 0.09 m lens height, so the
+         floor lands right at the camera's minimum range; near-floor obstacles are
+         seen WITHOUT a wedge.  The old ~1.55 deg nose-down cal (pitch 0.027) is also
+         dropped: a shrink-tube shim was removed so the camera is physically flat,
+         hence pitch=0. -->
+    <xacro:oakd_joint x="0.023" y="0.01" z="0.030" roll="0" pitch="0" yaw="0" mount_point="front_panel"/>
 
 
     <!-- LDLidar configuration - ldlidar must be included before support to define properties -->
